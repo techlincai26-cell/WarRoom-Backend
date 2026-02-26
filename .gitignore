@@ -1,0 +1,30 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Environment variables
+.env
+
+# Database files
+*.db
+
+# Documentation
+*.md
+kk's_war_room_sop
+
+# Scripts
+inspect_db.py
+test_connection.py
+start_server.bat

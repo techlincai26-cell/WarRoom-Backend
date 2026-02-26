@@ -1,0 +1,1048 @@
+{
+  "name": "KK War Room 2.0",
+  "version": "2.0",
+  "levels": [1, 2],
+  "mentors": [
+    {
+      "id": "tony_robbins",
+      "name": "Tony Robbins",
+      "specialization": "Mindset & Peak Performance",
+      "avatar": "/avatars/tony_robbins.png",
+      "bio": "World-renowned life and business strategist who has coached Fortune 500 CEOs and world leaders.",
+      "guidance_style": "High-energy, pattern-interrupt, focuses on state and strategy",
+      "tone": "Intense, empowering, direct"
+    },
+    {
+      "id": "grant_cardone",
+      "name": "Grant Cardone",
+      "specialization": "Sales & 10X Growth",
+      "avatar": "/avatars/grant_cardone.png",
+      "bio": "Sales training expert, real estate mogul, and author of The 10X Rule.",
+      "guidance_style": "Aggressive action-oriented, massive action philosophy",
+      "tone": "Bold, unapologetic, action-driven"
+    },
+    {
+      "id": "mel_robbins",
+      "name": "Mel Robbins",
+      "specialization": "Decision-Making & Courage",
+      "avatar": "/avatars/mel_robbins.png",
+      "bio": "Author of The 5 Second Rule, expert on habit formation and overcoming self-doubt.",
+      "guidance_style": "Practical, science-backed, immediate action steps",
+      "tone": "Warm, direct, motivating"
+    },
+    {
+      "id": "codie_sanchez",
+      "name": "Codie Sanchez",
+      "specialization": "Boring Businesses & Acquisitions",
+      "avatar": "/avatars/codie_sanchez.png",
+      "bio": "Former Wall Street investor turned acquisition entrepreneur. Expert in buying boring businesses.",
+      "guidance_style": "Contrarian thinking, financial precision, leverage-focused",
+      "tone": "Smart, practical, irreverent"
+    },
+    {
+      "id": "richard_branson",
+      "name": "Richard Branson",
+      "specialization": "Brand Building & Adventure",
+      "avatar": "/avatars/richard_branson.png",
+      "bio": "Founder of Virgin Group with 400+ companies. Serial entrepreneur and adventurer.",
+      "guidance_style": "People-first, brand-centric, risk-embracing",
+      "tone": "Fun, optimistic, human-centered"
+    },
+    {
+      "id": "sivasankaran",
+      "name": "Chinnakannan Sivasankaran",
+      "specialization": "Telecom & Scale in Emerging Markets",
+      "avatar": "/avatars/sivasankaran.png",
+      "bio": "Founder of Aircel, built telecom empire in India. Expert in scaling in resource-constrained markets.",
+      "guidance_style": "Frugal innovation, market-entry strategy, resilience-focused",
+      "tone": "Experienced, grounded, strategic"
+    },
+    {
+      "id": "aravind_srinivas",
+      "name": "Aravind Srinivas",
+      "specialization": "AI & Product Innovation",
+      "avatar": "/avatars/aravind_srinivas.png",
+      "bio": "CEO of Perplexity AI. Expert in building AI-first products and disrupting established markets.",
+      "guidance_style": "First-principles thinking, technology-driven, user-obsessed",
+      "tone": "Thoughtful, analytical, forward-looking"
+    }
+  ],
+  "investors": [
+    {
+      "id": "steven_bartlett",
+      "name": "Steven Bartlett",
+      "primary_lens": "Identity & Mindset",
+      "bias_trait_name": "True to Themselves",
+      "avatar": "/avatars/steven_bartlett.png",
+      "bio": "Youngest Dragon on Dragons' Den. CEO of Flight Story. Expert in brand identity and social media.",
+      "signature_question": "What real problem are you solving, and why does it matter now?",
+      "walk_out_trigger": "Identity unclear - founder doesn't know who they are or why they're doing this",
+      "tone": "Authentic, probing, philosophical",
+      "characteristics": ["Values authenticity", "Probes identity", "Tests self-awareness"]
+    },
+    {
+      "id": "kevin_oleary",
+      "name": "Kevin O'Leary",
+      "primary_lens": "Discipline & Profit",
+      "bias_trait_name": "Learnability",
+      "avatar": "/avatars/kevin_oleary.png",
+      "bio": "Mr. Wonderful. Chairman of O'Leary Financial Group. Cold, numbers-driven investor.",
+      "signature_question": "How will you use the capital in the next 12 months?",
+      "walk_out_trigger": "Financial logic weak - numbers don't add up or founder can't explain unit economics",
+      "tone": "Blunt, numbers-focused, ruthless",
+      "characteristics": ["Demands ROI clarity", "Tests financial literacy", "Royalty deals"]
+    },
+    {
+      "id": "daymond_john",
+      "name": "Daymond John",
+      "primary_lens": "Hustle & Brand",
+      "bias_trait_name": "Assertiveness",
+      "avatar": "/avatars/daymond_john.png",
+      "bio": "Founder of FUBU. The People's Shark. Expert in brand building from nothing.",
+      "signature_question": "If a competitor copies you tomorrow, what do you do first?",
+      "walk_out_trigger": "Brand weak - no clear differentiation or brand strategy",
+      "tone": "Street-smart, empathetic, brand-focused",
+      "characteristics": ["Values hustle", "Tests brand strength", "Cares about differentiation"]
+    },
+    {
+      "id": "barbara_corcoran",
+      "name": "Barbara Corcoran",
+      "primary_lens": "Founder Energy & Instinct",
+      "bias_trait_name": "Resilience",
+      "avatar": "/avatars/barbara_corcoran.png",
+      "bio": "Built The Corcoran Group from a $1,000 loan. Trusts gut instinct and founder grit.",
+      "signature_question": "Tell me about a moment this business almost failed.",
+      "walk_out_trigger": "Emotional authenticity weak - founder seems rehearsed or lacks genuine passion",
+      "tone": "Warm, intuitive, gut-driven",
+      "characteristics": ["Trusts founder energy", "Values resilience stories", "Bets on people"]
+    },
+    {
+      "id": "mark_cuban",
+      "name": "Mark Cuban",
+      "primary_lens": "Product & Execution",
+      "bias_trait_name": "Humility",
+      "avatar": "/avatars/mark_cuban.png",
+      "bio": "Owner of Dallas Mavericks. Serial tech entrepreneur. Values product excellence and hustle.",
+      "signature_question": "What is your biggest blind spot right now?",
+      "walk_out_trigger": "Scalability weak - product or business model can't scale",
+      "tone": "Direct, tech-savvy, execution-focused",
+      "characteristics": ["Tests self-awareness", "Values scalability", "Product-obsessed"]
+    },
+    {
+      "id": "lori_greiner",
+      "name": "Lori Greiner",
+      "primary_lens": "Strategy & Competition",
+      "bias_trait_name": "Learnability",
+      "avatar": "/avatars/lori_greiner.png",
+      "bio": "Queen of QVC. Holds 120+ patents. Expert in product-market fit and retail strategy.",
+      "signature_question": "What is your unfair advantage and how long will it last?",
+      "walk_out_trigger": "Clarity weak - founder can't clearly explain their product or strategy",
+      "tone": "Strategic, clear, product-focused",
+      "characteristics": ["Demands clarity", "Tests competitive moat", "Values product-market fit"]
+    },
+    {
+      "id": "robert_herjavec",
+      "name": "Robert Herjavec",
+      "primary_lens": "Trust & Relationships",
+      "bias_trait_name": "True to Themselves",
+      "avatar": "/avatars/robert_herjavec.png",
+      "bio": "Founder of Herjavec Group. Immigrant success story. Values integrity and trust above all.",
+      "signature_question": "Why should I trust you beyond the numbers?",
+      "walk_out_trigger": "Trust weak - inconsistencies in story or founder seems untrustworthy",
+      "tone": "Empathetic, trust-focused, relationship-driven",
+      "characteristics": ["Values integrity", "Tests trust signals", "Long-term relationship builder"]
+    }
+  ],
+  "leaders": [
+    {
+      "id": "indira_nooyi",
+      "name": "Indira Nooyi",
+      "specialization": "Strategic, disciplined, long-term institution builder",
+      "avatar": "/avatars/indira_nooyi.png",
+      "bio": "Former CEO of PepsiCo. Known for Performance with Purpose strategy.",
+      "tone": "Strategic, measured, institution-minded"
+    },
+    {
+      "id": "jack_ma",
+      "name": "Jack Ma",
+      "specialization": "Grit, belief under doubt, unconventional thinking",
+      "avatar": "/avatars/jack_ma.png",
+      "bio": "Founder of Alibaba. Rejected from 30 jobs, built the world's largest e-commerce platform.",
+      "tone": "Philosophical, determined, unconventional"
+    },
+    {
+      "id": "simon_sinek",
+      "name": "Simon Sinek",
+      "specialization": "Purpose, clarity, emotional conviction",
+      "avatar": "/avatars/simon_sinek.png",
+      "bio": "Author of Start With Why. Expert in leadership and purpose-driven organizations.",
+      "tone": "Calm, purposeful, inspiring"
+    },
+    {
+      "id": "brian_tracy",
+      "name": "Brian Tracy",
+      "specialization": "Execution, performance, measurable progress",
+      "avatar": "/avatars/brian_tracy.png",
+      "bio": "Author of Eat That Frog. Expert in personal productivity and goal achievement.",
+      "tone": "Practical, disciplined, results-driven"
+    },
+    {
+      "id": "john_maxwell",
+      "name": "John C. Maxwell",
+      "specialization": "Leadership maturity, character, responsibility",
+      "avatar": "/avatars/john_maxwell.png",
+      "bio": "Author of The 21 Irrefutable Laws of Leadership. World's foremost leadership expert.",
+      "tone": "Wise, principled, character-focused"
+    },
+    {
+      "id": "anand_mahindra",
+      "name": "Anand Mahindra",
+      "specialization": "Nation-building, resilience, long-game thinking",
+      "avatar": "/avatars/anand_mahindra.png",
+      "bio": "Chairman of Mahindra Group. Known for patient capital and nation-building vision.",
+      "tone": "Visionary, resilient, nation-minded"
+    },
+    {
+      "id": "sridhar_vembu",
+      "name": "Sridhar Vembu",
+      "specialization": "Frugal, product-first, customer-first, disciplined",
+      "avatar": "/avatars/sridhar_vembu.png",
+      "bio": "Founder and CEO of Zoho. Bootstrapped to $1B+ revenue without external funding.",
+      "tone": "Humble, product-focused, discipline-oriented"
+    }
+  ],
+  "competencies": [
+    {
+      "code": "C1",
+      "name": "Problem Sensing",
+      "description": "Does the founder deeply understand the customer's real pain?",
+      "what_it_measures": [
+        "Validates before building",
+        "Solves meaningful problems, not surface inconveniences",
+        "Seeks customer conversations over assumptions",
+        "Articulates emotional + financial cost of the problem",
+        "Obsessed with the problem before the solution"
+      ],
+      "developing": [
+        "Assumes problem without deep validation",
+        "Talks more about solution than customer pain",
+        "Relies on surface-level insights",
+        "Cannot clearly articulate emotional + financial cost",
+        "Focuses on idea excitement over problem obsession"
+      ],
+      "strong": [
+        "Conducts meaningful validation",
+        "Can clearly describe customer pain and stakes",
+        "Balances problem depth with solution development",
+        "Seeks real conversations before scaling",
+        "Demonstrates customer empathy in decisions"
+      ],
+      "advanced": [
+        "Deeply obsessed with understanding root pain",
+        "Quantifies emotional and financial impact clearly",
+        "Anticipates adjacent and second-order customer problems",
+        "Validates continuously, not just initially",
+        "Builds solution from pain precision, not assumption"
+      ]
+    },
+    {
+      "code": "C2",
+      "name": "Learning Agility",
+      "description": "Does the founder actively seek feedback and adapt?",
+      "what_it_measures": [
+        "Actively seeks feedback",
+        "Adapts when data contradicts belief",
+        "Willing to pivot based on learning",
+        "Upgrades knowledge continuously",
+        "Separates ego from iteration",
+        "Uses Mentor lifeline effectively"
+      ],
+      "developing": [
+        "Defensive when challenged",
+        "Resists pivoting despite evidence",
+        "Learns slowly or inconsistently",
+        "Confuses persistence with stubbornness",
+        "Applies new information reactively",
+        "Used mentor lifeline 0 or 1 time"
+      ],
+      "strong": [
+        "Seeks structured feedback",
+        "Adjusts strategy based on data",
+        "Separates ego from iteration",
+        "Learns and applies quickly",
+        "Shows growth mindset under pressure",
+        "Used mentor lifeline 2 times"
+      ],
+      "advanced": [
+        "Proactively hunts for disconfirming evidence",
+        "Iterates rapidly with discipline",
+        "Treats mistakes as data assets",
+        "Applies learning across systems",
+        "Evolves model ahead of market shifts",
+        "Used all mentor lifelines - 3 times"
+      ]
+    },
+    {
+      "code": "C3",
+      "name": "Courage to Commit",
+      "description": "Can the founder make decisions with incomplete information?",
+      "what_it_measures": [
+        "Risk-taking appetite",
+        "Takes ownership of risk",
+        "Moves forward vs analysis paralysis",
+        "Stakes reputation/resources on conviction",
+        "Stands by decisions under pressure"
+      ],
+      "developing": [
+        "Stays in analysis paralysis",
+        "Avoids decisive action",
+        "Hesitates to take or own risk",
+        "Overuses more research as delay",
+        "Wavers under pressure"
+      ],
+      "strong": [
+        "Makes timely decisions with imperfect info",
+        "Accepts responsibility for outcomes",
+        "Stands by decisions calmly",
+        "Takes calculated risks",
+        "Moves forward despite uncertainty"
+      ],
+      "advanced": [
+        "Makes high-quality decisions under ambiguity",
+        "Demonstrates conviction without arrogance",
+        "Maintains clarity under intense pressure",
+        "Accepts reputational and financial stakes",
+        "Converts uncertainty into momentum"
+      ]
+    },
+    {
+      "code": "C4",
+      "name": "Financial Discipline",
+      "description": "Does the founder understand and manage money wisely?",
+      "what_it_measures": [
+        "Generates momentum without money",
+        "Leverages partnerships instead of hiring",
+        "Trades equity wisely",
+        "Thinks creatively under limitation",
+        "Understands cash flow vs profit",
+        "Protects runway",
+        "Prioritizes ROI over excitement"
+      ],
+      "developing": [
+        "Confuses revenue with profit",
+        "Spends emotionally or prematurely",
+        "Scales before validation",
+        "Poor runway awareness",
+        "Tracks numbers inconsistently",
+        "Uses hiring to compensate for weak strategy",
+        "Gives equity prematurely"
+      ],
+      "strong": [
+        "Understands cash flow fundamentals",
+        "Aligns spending with stage",
+        "Prioritizes ROI",
+        "Protects runway",
+        "Makes disciplined scaling decisions",
+        "Uses partnerships to offset cash constraints",
+        "Calculates equity trade against dilution impact"
+      ],
+      "advanced": [
+        "Optimizes capital allocation strategically",
+        "Anticipates financial risk before crisis",
+        "Scales with precision timing",
+        "Balances growth with sustainability",
+        "Uses numbers as decision intelligence",
+        "Converts constraints into competitive positioning",
+        "Designs asymmetric leverage plays"
+      ]
+    },
+    {
+      "code": "C5",
+      "name": "Strategic Thinking",
+      "description": "Can the founder see the big picture beyond day-to-day operations?",
+      "what_it_measures": [
+        "Sees big picture beyond daily ops",
+        "Understands how today's decisions impact 1-3 years ahead",
+        "Sees second-order consequences",
+        "Aligns decisions to long-term direction",
+        "Anticipates risks before they surface",
+        "Fixes root causes instead of patches"
+      ],
+      "developing": [
+        "Focuses on short-term tasks",
+        "Struggles to connect decisions to long-term impact",
+        "Misses second-order consequences",
+        "Reacts to problems instead of anticipating",
+        "Fixes symptoms, not root causes",
+        "Reacts emotionally to setbacks"
+      ],
+      "strong": [
+        "Thinks 1-3 years ahead",
+        "Aligns daily execution with vision",
+        "Anticipates key risks",
+        "Prioritizes high-leverage moves",
+        "Understands cross-functional impact",
+        "Pauses before reacting to external shocks"
+      ],
+      "advanced": [
+        "Operates from true big-picture perspective",
+        "Sees systemic interdependencies",
+        "Anticipates long-term ripple effects",
+        "Designs strategy around root causes",
+        "Consistently zooms out before acting",
+        "Designs preventative strategy before crisis",
+        "Maintains strategic calm under volatility"
+      ]
+    },
+    {
+      "code": "C6",
+      "name": "Power & Influence",
+      "description": "Can the founder defend value and negotiate from strength?",
+      "what_it_measures": [
+        "Defends value confidently",
+        "Negotiates from strength not desperation",
+        "Says no to misaligned offers",
+        "Asks clarifying questions before agreeing",
+        "Protects equity and long-term leverage",
+        "ABC - Always Be Closing mindset",
+        "Converts conversations into decisions"
+      ],
+      "developing": [
+        "Negotiates from fear or desperation",
+        "Avoids difficult conversations",
+        "Accepts misaligned deals",
+        "Leaves conversations without clear outcomes",
+        "Weak closing discipline",
+        "Concedes valuation under pressure",
+        "Accepts unfavorable terms to avoid discomfort"
+      ],
+      "strong": [
+        "Defends value confidently",
+        "Asks clarifying questions",
+        "Protects equity and leverage",
+        "Operates with ABC mindset",
+        "Converts discussions into next steps",
+        "Protects core terms while remaining flexible",
+        "Reframes objections into value reinforcement"
+      ],
+      "advanced": [
+        "Negotiates from strategic strength",
+        "Walks away from misaligned offers",
+        "Maintains composure under deal pressure",
+        "Balances assertiveness with flexibility",
+        "Controls negotiation tempo",
+        "Walks away without emotional residue",
+        "Practices ABC mindset and takes quick win-win decisions"
+      ]
+    },
+    {
+      "code": "C7",
+      "name": "Team & Customer Management",
+      "description": "Does the founder genuinely care about customer satisfaction and team well-being?",
+      "what_it_measures": [
+        "Genuinely cares about customer satisfaction beyond transactions",
+        "Treats team as assets to grow, not exploit",
+        "Checks personal bias in decisions",
+        "Makes decisions with long-term trust in mind",
+        "Creates psychological safety",
+        "Builds feedback loops for customers and employees"
+      ],
+      "developing": [
+        "Treats team as functional resources",
+        "Prioritizes output over well-being",
+        "Applies short-term fixes",
+        "Ignores bias in decisions",
+        "Weak customer retention focus",
+        "Avoids difficult team conversations",
+        "Fixes symptoms without listening deeply"
+      ],
+      "strong": [
+        "Balances performance with stakeholder care",
+        "Builds feedback loops",
+        "Checks bias in hiring and promotions",
+        "Invests in customer satisfaction",
+        "Protects medium-term trust",
+        "Addresses conflict directly but respectfully",
+        "Builds structured feedback mechanisms"
+      ],
+      "advanced": [
+        "Designs systems for long-term loyalty",
+        "Actively eliminates bias",
+        "Builds psychological safety",
+        "Fixes root causes, not symptoms",
+        "Protects both customer and team equity under pressure",
+        "Prioritizes humanity over profits when demanded",
+        "Maintains psychological safety under performance pressure"
+      ]
+    },
+    {
+      "code": "C8",
+      "name": "Value Creation & Personal Credibility",
+      "description": "Does the founder build lasting value and reputation?",
+      "what_it_measures": [
+        "Shares knowledge openly",
+        "Educates their market",
+        "Builds authority",
+        "Thinks reputation > revenue",
+        "Considers impact on family, team, community",
+        "Builds brand equity, not just numbers"
+      ],
+      "developing": [
+        "Chases revenue and vanity metrics",
+        "Sees branding as marketing only",
+        "Makes short-term reputation compromises",
+        "Rarely shares knowledge",
+        "Thinks transactional, not legacy"
+      ],
+      "strong": [
+        "Actively shares knowledge and educates customers",
+        "Thinks about long-term brand positioning",
+        "Balances profit with credibility",
+        "Values long-term brand positioning"
+      ],
+      "advanced": [
+        "Operates as value creator first, revenue follows",
+        "Invests in community, team growth, and ecosystem",
+        "Protects reputation over rapid valuation",
+        "Builds authority through service and insight",
+        "Demonstrates ethical decision-making under pressure"
+      ]
+    }
+  ],
+  "stage_weights": {
+    "STAGE_NEG2_IDEATION": {"C1": 40, "C2": 35, "C5": 15, "C8": 10},
+    "STAGE_NEG1_VISION": {"C2": 20, "C3": 10, "C5": 40, "C8": 30},
+    "STAGE_0_COMMITMENT": {"C3": 40, "C4": 40, "C5": 20},
+    "STAGE_1_VALIDATION": {"C1": 30, "C2": 30, "C4": 15, "C7": 25},
+    "STAGE_2A_GROWTH": {"C3": 20, "C4": 35, "C5": 25, "C7": 20},
+    "STAGE_2B_EXPANSION": {"C3": 20, "C4": 20, "C5": 25, "C6": 35},
+    "STAGE_3_SCALE": {"C2": 20, "C3": 20, "C7": 35, "C8": 25},
+    "STAGE_WARROOM_PREP": {"C4": 30, "C5": 25, "C6": 30, "C8": 15},
+    "STAGE_4_WARROOM": {"C1": 12, "C2": 12, "C3": 13, "C4": 13, "C5": 13, "C6": 12, "C7": 13, "C8": 12}
+  },
+  "stages": [
+    {
+      "id": "STAGE_NEG2_IDEATION",
+      "name": "Ideation",
+      "title": "Stage -2: IDEATION",
+      "stage_number": -2,
+      "goal": "Identify real problem worth solving",
+      "what_happens": ["Define target customer", "Identify pain points", "Conduct validation interviews", "Define emotional + financial cost"],
+      "pressure_injected": ["Assumptions invalidated", "Customer contradicts founder belief", "Limited time to refine problem"],
+      "duration_minutes": 10,
+      "simulated_months": [0],
+      "competencies": ["C1", "C2"],
+      "questions": [
+        {
+          "q_id": "Q_NEG2_1",
+          "type": "open_text",
+          "text": "What is your business idea in one clear sentence?",
+          "section": "The Idea",
+          "assess": ["C1"],
+          "ai_eval_prompt": "Evaluate clarity, specificity, and problem-focus of this business idea statement.",
+          "scoring_guide": {"vague": 1, "broad_category": 1, "specific_niche": 2, "specific_with_rationale": 3}
+        },
+        {
+          "q_id": "Q_NEG2_2",
+          "type": "open_text",
+          "text": "What specific problem does it solve?",
+          "section": "The Idea",
+          "assess": ["C1"],
+          "ai_eval_prompt": "Evaluate if the founder identifies a real pain point vs surface inconvenience. Look for emotional + financial cost articulation.",
+          "scoring_guide": {"no_clear_problem": 1, "vague_problem": 1, "clear_problem": 2, "monetizable_pain": 3}
+        },
+        {
+          "q_id": "Q_NEG2_3",
+          "type": "open_text",
+          "text": "Who is your target audience? Be as specific as possible (demographics, psychographics, context).",
+          "section": "The Idea",
+          "assess": ["C1"],
+          "ai_eval_prompt": "Evaluate specificity of target customer definition. Look for demographics, psychographics, and context.",
+          "scoring_guide": {"everyone": 1, "demographics_only": 1, "demo_plus_psychographic": 2, "detailed_persona": 3}
+        },
+        {
+          "q_id": "Q_NEG2_4",
+          "type": "open_text",
+          "text": "Why would someone pay for this?",
+          "section": "Market Reality",
+          "assess": ["C1"],
+          "ai_eval_prompt": "Evaluate understanding of willingness to pay. Does founder understand value vs cost?"
+        },
+        {
+          "q_id": "Q_NEG2_5",
+          "type": "multiple_choice",
+          "text": "Is this a NEED or a WANT? And Why?",
+          "section": "Market Reality",
+          "assess": ["C1", "C5"],
+          "options": [
+            {"id": "Q_NEG2_5_A", "text": "A critical need - people are actively suffering without a solution", "proficiency": 3, "signal": "Problem obsessed, deep understanding"},
+            {"id": "Q_NEG2_5_B", "text": "A strong want - people desire this and would pay for convenience", "proficiency": 2, "signal": "Good market awareness"},
+            {"id": "Q_NEG2_5_C", "text": "Somewhere between - it depends on the customer", "proficiency": 1, "signal": "Lacks clarity on positioning"},
+            {"id": "Q_NEG2_5_D", "text": "More of a nice-to-have but the market is big", "proficiency": 1, "signal": "Weak problem validation", "warning": "Nice-to-have products struggle for retention"}
+          ]
+        },
+        {
+          "q_id": "Q_NEG2_6",
+          "type": "open_text",
+          "text": "How are people currently solving this problem?",
+          "section": "Market Reality",
+          "assess": ["C1", "C2"],
+          "ai_eval_prompt": "Evaluate competitive awareness. Does founder understand existing solutions and why they're insufficient?"
+        },
+        {
+          "q_id": "Q_NEG2_7",
+          "type": "multiple_choice",
+          "text": "How will this business make money? (Product / Service / Subscription / Other)",
+          "section": "Money & Model",
+          "assess": ["C1", "C5"],
+          "options": [
+            {"id": "Q_NEG2_7_A", "text": "One-time product sale", "proficiency": 2, "signal": "Simple, proven model"},
+            {"id": "Q_NEG2_7_B", "text": "Recurring subscription/membership", "proficiency": 3, "signal": "Scalable, predictable revenue"},
+            {"id": "Q_NEG2_7_C", "text": "Service (per-project or hourly)", "proficiency": 2, "signal": "Revenue tied to time"},
+            {"id": "Q_NEG2_7_D", "text": "Marketplace/platform (commission-based)", "proficiency": 2, "signal": "Network effects potential"},
+            {"id": "Q_NEG2_7_E", "text": "Freemium with premium upsell", "proficiency": 2, "signal": "Growth-focused but needs conversion strategy"},
+            {"id": "Q_NEG2_7_F", "text": "Not sure yet", "proficiency": 1, "signal": "Lacks business model clarity", "warning": "No revenue model is a red flag"}
+          ]
+        },
+        {
+          "q_id": "Q_NEG2_8",
+          "type": "open_text",
+          "text": "What will you charge? Why that price?",
+          "section": "Money & Model",
+          "assess": ["C1"],
+          "ai_eval_prompt": "Evaluate pricing rationale. Look for value-based thinking, competitor awareness, and willingness-to-pay research."
+        },
+        {
+          "q_id": "Q_NEG2_9",
+          "type": "open_text",
+          "text": "Roughly how much will it cost to launch the first version?",
+          "section": "Money & Model",
+          "assess": ["C1"],
+          "ai_eval_prompt": "Evaluate cost awareness and realism. Does founder understand bootstrapping vs over-investing?"
+        },
+        {
+          "q_id": "Q_NEG2_10",
+          "type": "open_text",
+          "text": "What is the biggest risk or weakness in this idea?",
+          "section": "Founder Fit",
+          "assess": ["C2"],
+          "ai_eval_prompt": "Evaluate self-awareness and ability to identify genuine risks vs surface-level concerns. P3 if founder names non-obvious structural risk."
+        }
+      ]
+    },
+    {
+      "id": "STAGE_NEG1_VISION",
+      "name": "Vision",
+      "title": "Stage -1: VISION",
+      "stage_number": -1,
+      "goal": "Define long-term direction",
+      "what_happens": ["Define 1-3 yr vision", "Clarify positioning", "Choose business model"],
+      "pressure_injected": ["Scalability questioned", "Competitor enters", "Vision challenged"],
+      "duration_minutes": 5,
+      "simulated_months": [1],
+      "competencies": ["C5", "C8"],
+      "questions": [
+        {
+          "q_id": "Q_NEG1_1",
+          "type": "open_text",
+          "text": "In ONE sentence: What is your business vision? What does success look like in 12 months?",
+          "assess": ["C5"],
+          "ai_eval_prompt": "Evaluate vision clarity, realism, and long-term thinking."
+        },
+        {
+          "q_id": "Q_NEG1_2",
+          "type": "open_text",
+          "text": "How will your business be positioned differently from competitors in 1-3 years?",
+          "assess": ["C5", "C8"],
+          "ai_eval_prompt": "Evaluate strategic positioning and long-term brand thinking."
+        },
+        {
+          "q_id": "Q_NEG1_3",
+          "type": "scenario",
+          "text": "3 experienced entrepreneurs review your idea. They say: 1) Market is saturated, 2) Customers lack budget, 3) Hard execution. How do you respond?",
+          "assess": ["C5", "C2"],
+          "pressure_text": "Your vision is being challenged by experienced voices.",
+          "options": [
+            {"id": "Q_NEG1_3_A", "text": "Stick with my plan - I believe in it", "proficiency": 1, "signal": "Stubborn, doesn't learn from feedback", "warning": "+40% failure risk"},
+            {"id": "Q_NEG1_3_B", "text": "Ask follow-up questions to understand their perspective deeper", "proficiency": 3, "signal": "Learning agility, seeks understanding"},
+            {"id": "Q_NEG1_3_C", "text": "Pivot to a different idea", "proficiency": 1, "signal": "Too quick to abandon", "warning": "Lacks conviction"},
+            {"id": "Q_NEG1_3_D", "text": "Acknowledge valid points and modify my approach", "proficiency": 2, "signal": "Balanced, adaptable"}
+          ]
+        },
+        {
+          "q_id": "Q_NEG1_4",
+          "type": "open_text",
+          "text": "What kind of leader do you want to be known as? What values will your company stand for?",
+          "assess": ["C8"],
+          "ai_eval_prompt": "Evaluate depth of values thinking and personal credibility vision."
+        }
+      ]
+    },
+    {
+      "id": "STAGE_0_COMMITMENT",
+      "name": "Commitment",
+      "title": "Stage 0: COMMITMENT",
+      "stage_number": 0,
+      "goal": "Make decisive early moves",
+      "what_happens": ["Choose pricing", "Allocate capital", "Decide launch path"],
+      "pressure_injected": ["Limited runway", "Advisor says 'wait'", "Uncertainty"],
+      "duration_minutes": 10,
+      "simulated_months": [2],
+      "competencies": ["C3", "C4"],
+      "questions": [
+        {
+          "q_id": "Q_0_1",
+          "type": "scenario",
+          "text": "You have limited capital. How will you fund your launch?",
+          "assess": ["C3", "C4"],
+          "pressure_text": "Every dollar counts. Choose wisely.",
+          "options": [
+            {"id": "Q_0_1_A", "text": "Bootstrap with personal savings", "proficiency": 2, "signal": "Conservative, maintains equity", "impact": {"equity_kept": 100, "pressure": "low"}},
+            {"id": "Q_0_1_B", "text": "Take a business loan", "proficiency": 2, "signal": "Willing to take financial risk", "impact": {"debt": true, "pressure": "medium"}},
+            {"id": "Q_0_1_C", "text": "Seek angel investors", "proficiency": 2, "signal": "Capital-aware but dilutes equity", "impact": {"equity_kept": 75, "time_cost_months": 2}},
+            {"id": "Q_0_1_D", "text": "Pre-sell to customers before building", "proficiency": 3, "signal": "Validates AND funds simultaneously", "impact": {"validation": "high", "equity_kept": 100}},
+            {"id": "Q_0_1_E", "text": "Find a co-founder who invests", "proficiency": 2, "signal": "Team strength but high equity cost", "impact": {"equity_kept": 50, "team_strength": 1.3}},
+            {"id": "Q_0_1_F", "text": "Wait until I have more savings", "proficiency": 1, "signal": "Analysis paralysis", "warning": "Delaying indefinitely"}
+          ]
+        },
+        {
+          "q_id": "Q_0_2",
+          "type": "scenario",
+          "text": "An experienced advisor tells you: 'Don't launch yet. Do 3 more months of research.' But you feel ready. What do you do?",
+          "assess": ["C3"],
+          "pressure_text": "An authority figure is telling you to wait.",
+          "options": [
+            {"id": "Q_0_2_A", "text": "Follow the advisor's suggestion and wait", "proficiency": 1, "signal": "Defers to authority, lacks conviction"},
+            {"id": "Q_0_2_B", "text": "Launch a basic MVP now while doing research in parallel", "proficiency": 3, "signal": "Balances action with learning"},
+            {"id": "Q_0_2_C", "text": "Launch immediately, full product", "proficiency": 2, "signal": "Bold but risky", "warning": "May launch unvalidated"},
+            {"id": "Q_0_2_D", "text": "Ask the advisor what specific research would change my approach", "proficiency": 2, "signal": "Learning agility, seeks specifics"}
+          ]
+        },
+        {
+          "q_id": "Q_0_3",
+          "type": "budget_allocation",
+          "text": "You have your starting capital. Allocate it across these categories (must total 100%):",
+          "assess": ["C4"],
+          "options": [
+            {"id": "product_dev", "text": "Product Development (recommended: 30-50%)"},
+            {"id": "marketing", "text": "Marketing & Sales (recommended: 15-40%)"},
+            {"id": "hiring", "text": "Hiring (recommended: 0-30%)"},
+            {"id": "operations", "text": "Operations (recommended: 5-15%)"},
+            {"id": "buffer", "text": "Emergency Buffer (recommended: 10-25%)"}
+          ],
+          "scoring_guide": {
+            "warnings": {
+              "hiring_gt_30": "WARNING: >30% on hiring before PMF = risky",
+              "buffer_lt_10": "WARNING: Low buffer could derail you",
+              "product_lt_25": "WARNING: Low product budget = quality issues"
+            }
+          }
+        },
+        {
+          "q_id": "Q_0_4",
+          "type": "scenario",
+          "text": "With your budget, you can: A) Ship a basic MVP in 1 month, or B) Build a polished product in 3 months. Which do you choose?",
+          "assess": ["C3", "C5"],
+          "options": [
+            {"id": "Q_0_4_A", "text": "Ship basic MVP in 1 month - learn from real customers", "proficiency": 3, "signal": "Speed to market, learning-focused"},
+            {"id": "Q_0_4_B", "text": "Build polished product in 3 months - quality matters", "proficiency": 1, "signal": "Perfectionism risk", "warning": "3 months with no revenue is risky"}
+          ]
+        },
+        {
+          "q_id": "Q_0_5",
+          "type": "scenario",
+          "text": "A friend (talented designer) offers to work for 10% equity instead of $15K cash. What do you do?",
+          "assess": ["C4"],
+          "options": [
+            {"id": "Q_0_5_A", "text": "Accept - equity is cheaper than cash right now", "proficiency": 2, "signal": "Short-term smart but long-term costly"},
+            {"id": "Q_0_5_B", "text": "Negotiate 5% with 4-year vesting schedule", "proficiency": 3, "signal": "Protects equity, fair deal"},
+            {"id": "Q_0_5_C", "text": "Offer profit-sharing instead of equity", "proficiency": 2, "signal": "Creative, protects equity"},
+            {"id": "Q_0_5_D", "text": "Decline - I'll do the design myself", "proficiency": 1, "signal": "May sacrifice quality"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "STAGE_1_VALIDATION",
+      "name": "Validation",
+      "title": "Stage 1: VALIDATION",
+      "stage_number": 1,
+      "goal": "Achieve product-market signal",
+      "what_happens": ["Launch MVP", "Attempt early sales", "Gather feedback"],
+      "pressure_injected": ["Low traction", "Early churn", "Public negative feedback", "Refund requests"],
+      "duration_minutes": 10,
+      "simulated_months": [3, 4],
+      "competencies": ["C1", "C2", "C7"],
+      "questions": [
+        {
+          "q_id": "Q_1_1",
+          "type": "scenario",
+          "text": "Product is LIVE! Month 3. You have zero customers. How do you get your first 10?",
+          "assess": ["C1", "C7"],
+          "options": [
+            {"id": "Q_1_1_A", "text": "Cold outreach - email/DM potential customers directly", "proficiency": 2, "signal": "Hustle-driven"},
+            {"id": "Q_1_1_B", "text": "Run paid ads on social media", "proficiency": 1, "signal": "Spending before validating", "warning": "Burning cash without understanding PMF"},
+            {"id": "Q_1_1_C", "text": "Leverage personal network and ask for referrals", "proficiency": 2, "signal": "Trust-based, warm approach"},
+            {"id": "Q_1_1_D", "text": "Partner with complementary businesses for cross-promotion", "proficiency": 3, "signal": "Strategic, leverages existing audiences"},
+            {"id": "Q_1_1_E", "text": "Create valuable content to attract inbound interest", "proficiency": 2, "signal": "Long-term but slow"}
+          ]
+        },
+        {
+          "q_id": "Q_1_2",
+          "type": "scenario",
+          "text": "Month 3: You got 8 customers! But 2 request refunds saying 'not what I expected.' Meanwhile, 3 others say they love it but want Feature X. What is your Month 4 priority?",
+          "assess": ["C1", "C2", "C7"],
+          "pressure_text": "Low traction and early churn are testing your resolve.",
+          "options": [
+            {"id": "Q_1_2_A", "text": "Focus on retention - talk to the 2 churning customers to understand why", "proficiency": 3, "signal": "Customer-obsessed, root cause thinking"},
+            {"id": "Q_1_2_B", "text": "Double down on acquisition - get more customers", "proficiency": 1, "signal": "Leaky bucket problem", "warning": "Acquiring without fixing = burning money"},
+            {"id": "Q_1_2_C", "text": "Build Feature X immediately - 3 customers asked for it", "proficiency": 2, "signal": "Responsive to feedback"},
+            {"id": "Q_1_2_D", "text": "Talk to ALL customers (happy and unhappy) to understand patterns", "proficiency": 3, "signal": "Deep problem sensing, learning agility"}
+          ]
+        },
+        {
+          "q_id": "Q_1_3",
+          "type": "scenario",
+          "text": "A customer posts a negative review publicly: 'Terrible product. Waste of money. Don't buy.' You have 15 other happy customers. How do you respond?",
+          "assess": ["C7", "C2"],
+          "pressure_text": "Your reputation is being attacked publicly.",
+          "options": [
+            {"id": "Q_1_3_A", "text": "Respond publicly with empathy, offer to make it right", "proficiency": 3, "signal": "Mature crisis management, protects trust"},
+            {"id": "Q_1_3_B", "text": "Ignore it - one bad review won't matter", "proficiency": 1, "signal": "Dismissive of customer voice"},
+            {"id": "Q_1_3_C", "text": "Contact them privately first, then respond publicly", "proficiency": 3, "signal": "Balanced approach, protects both parties"},
+            {"id": "Q_1_3_D", "text": "Ask happy customers to post positive reviews to counter it", "proficiency": 1, "signal": "Manipulative, doesn't address root cause"}
+          ]
+        },
+        {
+          "q_id": "Q_1_4",
+          "type": "open_text",
+          "text": "After 2 months of sales, what have you LEARNED that you didn't expect? What would you change about your product or approach?",
+          "assess": ["C2"],
+          "ai_eval_prompt": "Evaluate learning agility. Does founder show genuine learning from market feedback? Do they separate ego from iteration?"
+        }
+      ]
+    },
+    {
+      "id": "STAGE_2A_GROWTH",
+      "name": "Revenue Growth",
+      "title": "Stage 2A: GROWTH",
+      "stage_number": 2,
+      "goal": "Scale responsibly",
+      "what_happens": ["Revenue increasing", "Hiring decision", "Marketing spend allocation"],
+      "pressure_injected": ["Cash flow crunch", "Growth temptation", "Team burnout escalation"],
+      "duration_minutes": 10,
+      "simulated_months": [5, 6],
+      "competencies": ["C4", "C5", "C7"],
+      "questions": [
+        {
+          "q_id": "Q_2A_1",
+          "type": "scenario",
+          "text": "Month 5: Revenue is growing 20% month-over-month. You're working 70+ hours/week. You can afford to hire ONE person. What role?",
+          "assess": ["C4", "C5", "C7"],
+          "options": [
+            {"id": "Q_2A_1_A", "text": "Customer support person - customers need faster responses", "proficiency": 2, "signal": "Customer-focused"},
+            {"id": "Q_2A_1_B", "text": "Sales person - to accelerate revenue", "proficiency": 2, "signal": "Growth-focused"},
+            {"id": "Q_2A_1_C", "text": "Operations/automation - build systems first, then scale people", "proficiency": 3, "signal": "Strategic thinking, builds foundations"},
+            {"id": "Q_2A_1_D", "text": "Don't hire yet - build systems and automation instead", "proficiency": 3, "signal": "Disciplined, systems-thinking"},
+            {"id": "Q_2A_1_E", "text": "Co-founder/partner for equity - can't afford salary", "proficiency": 2, "signal": "Creative but costly"}
+          ]
+        },
+        {
+          "q_id": "Q_2A_2",
+          "type": "scenario",
+          "text": "Month 6: Cash flow crunch. Revenue is $15K/mo but expenses are $12K/mo. A client offers $50K for a custom project that would take 2 months and derail your product roadmap. What do you do?",
+          "assess": ["C4", "C5"],
+          "pressure_text": "The cash is tempting but the opportunity cost is real.",
+          "options": [
+            {"id": "Q_2A_2_A", "text": "Take it - the cash injection is critical", "proficiency": 1, "signal": "Short-term thinking"},
+            {"id": "Q_2A_2_B", "text": "Decline - stay focused on the product roadmap", "proficiency": 2, "signal": "Disciplined but cash-tight"},
+            {"id": "Q_2A_2_C", "text": "Negotiate: $75K, extended timeline, hire contractor to handle it", "proficiency": 3, "signal": "Creative, protects core while capturing value"},
+            {"id": "Q_2A_2_D", "text": "Accept but only if it can lead to recurring revenue from that client", "proficiency": 2, "signal": "Strategic extraction"}
+          ]
+        },
+        {
+          "q_id": "Q_2A_3",
+          "type": "scenario",
+          "text": "Your first employee (3 months in) is underperforming. They're a good person but output is 50% of what you expected. Team is just 2 people. What do you do?",
+          "assess": ["C7"],
+          "pressure_text": "Team burnout is escalating. You can't do everything alone.",
+          "options": [
+            {"id": "Q_2A_3_A", "text": "Fire them quickly - you can't afford dead weight", "proficiency": 1, "signal": "Impulsive, doesn't investigate root cause"},
+            {"id": "Q_2A_3_B", "text": "Have an honest conversation: understand WHY, set clear expectations with timeline", "proficiency": 3, "signal": "Mature leadership, invests in people"},
+            {"id": "Q_2A_3_C", "text": "Give them easier tasks while you handle the hard stuff", "proficiency": 1, "signal": "Avoids confrontation, unsustainable"},
+            {"id": "Q_2A_3_D", "text": "Create proper onboarding, documentation, and check if YOUR systems are the bottleneck", "proficiency": 3, "signal": "Self-aware, systems thinking"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "STAGE_2B_EXPANSION",
+      "name": "Expansion",
+      "title": "Stage 2B: EXPANSION",
+      "stage_number": 2,
+      "goal": "Make high-leverage growth decisions",
+      "what_happens": ["Consider partnerships", "Expansion opportunity", "Automation/systemization"],
+      "pressure_injected": ["Misaligned partnership offer", "Undercutting competitor", "Attractive buyout", "Partner demands control rights"],
+      "duration_minutes": 10,
+      "simulated_months": [7, 8, 9, 10],
+      "competencies": ["C6", "C5", "C3"],
+      "questions": [
+        {
+          "q_id": "Q_2B_1",
+          "type": "scenario",
+          "text": "Month 8: A larger company offers a strategic partnership. They'll send you 200 customers BUT demand exclusive rights to your technology in their industry and 15% equity. What do you do?",
+          "assess": ["C6", "C5"],
+          "pressure_text": "A misaligned partnership offer with high upside and high cost.",
+          "options": [
+            {"id": "Q_2B_1_A", "text": "Accept - 200 customers would be transformative", "proficiency": 1, "signal": "Gives up leverage for short-term gain"},
+            {"id": "Q_2B_1_B", "text": "Negotiate: non-exclusive, 5% equity, revenue-share instead", "proficiency": 3, "signal": "Protects leverage, negotiates from strength"},
+            {"id": "Q_2B_1_C", "text": "Decline - the equity and exclusivity cost is too high", "proficiency": 2, "signal": "Protects equity but misses opportunity"},
+            {"id": "Q_2B_1_D", "text": "Counter: time-limited exclusive (1 year), no equity, performance-based partnership", "proficiency": 3, "signal": "Creative deal structuring"}
+          ]
+        },
+        {
+          "q_id": "Q_2B_2",
+          "type": "scenario",
+          "text": "Month 9: A competitor launches a similar product at 50% your price. 3 of your customers churn. What's your first move?",
+          "assess": ["C5", "C3"],
+          "pressure_text": "An undercutting competitor is stealing your customers.",
+          "options": [
+            {"id": "Q_2B_2_A", "text": "Match their pricing to stay competitive", "proficiency": 1, "signal": "Price war, unsustainable", "warning": "Race to bottom destroys margins"},
+            {"id": "Q_2B_2_B", "text": "Double down on value - add features and services they can't match", "proficiency": 2, "signal": "Value positioning"},
+            {"id": "Q_2B_2_C", "text": "Talk to the churned customers to understand EXACTLY why they switched", "proficiency": 3, "signal": "Deep problem sensing, learning agility"},
+            {"id": "Q_2B_2_D", "text": "Accelerate product roadmap to create features they can't copy", "proficiency": 2, "signal": "Innovation-driven"}
+          ]
+        },
+        {
+          "q_id": "Q_2B_3",
+          "type": "scenario",
+          "text": "Month 10: You receive an acquisition offer of $2M. Your annual revenue is $180K. The acquiring company is reputable. What do you do?",
+          "assess": ["C6", "C3", "C5"],
+          "pressure_text": "An attractive buyout offer — take-it-or-leave-it.",
+          "options": [
+            {"id": "Q_2B_3_A", "text": "Accept - $2M is life-changing money", "proficiency": 1, "signal": "Short-term thinking, undervalues business"},
+            {"id": "Q_2B_3_B", "text": "Negotiate for higher valuation and better terms", "proficiency": 2, "signal": "Defends value"},
+            {"id": "Q_2B_3_C", "text": "Decline - I believe this business is worth much more in 2-3 years", "proficiency": 3, "signal": "Long-term conviction, high courage"},
+            {"id": "Q_2B_3_D", "text": "Explore a strategic partnership instead of full acquisition", "proficiency": 3, "signal": "Creative structuring, maintains control"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "STAGE_3_SCALE",
+      "name": "Scale",
+      "title": "Stage 3: SCALE",
+      "stage_number": 3,
+      "goal": "Build scalable structure",
+      "what_happens": ["Team conflict", "Customer crisis", "Ops breakdown"],
+      "pressure_injected": ["Key team member quits", "Social media credibility attack", "Revenue dip"],
+      "duration_minutes": 10,
+      "simulated_months": [10, 11],
+      "competencies": ["C7", "C8", "C2"],
+      "questions": [
+        {
+          "q_id": "Q_3_1",
+          "type": "scenario",
+          "text": "Month 10: Your best employee (6 months, key relationships) says they're leaving for a competitor offering 40% more salary. Team morale is shaken. What do you do?",
+          "assess": ["C7"],
+          "pressure_text": "A key team member is quitting. Team morale is at risk.",
+          "options": [
+            {"id": "Q_3_1_A", "text": "Match the offer to keep them", "proficiency": 1, "signal": "Reactive, sets expensive precedent"},
+            {"id": "Q_3_1_B", "text": "Have an honest conversation - understand what they really want beyond money", "proficiency": 3, "signal": "Emotional intelligence, seeks root cause"},
+            {"id": "Q_3_1_C", "text": "Let them go - no one is irreplaceable", "proficiency": 1, "signal": "Dismissive of team value"},
+            {"id": "Q_3_1_D", "text": "Offer equity/growth path + moderate raise, show the long-term vision", "proficiency": 3, "signal": "Strategic retention, sells the vision"}
+          ]
+        },
+        {
+          "q_id": "Q_3_2",
+          "type": "scenario",
+          "text": "Month 11: A customer posts a viral social media thread attacking your company's credibility. Claims are partially true (slow support times) but exaggerated. 50K views. What do you do?",
+          "assess": ["C8", "C7"],
+          "pressure_text": "A social media credibility attack is going viral.",
+          "options": [
+            {"id": "Q_3_2_A", "text": "Issue a defensive public statement refuting the claims", "proficiency": 1, "signal": "Defensive, could escalate"},
+            {"id": "Q_3_2_B", "text": "Acknowledge the valid criticism publicly, share specific fix plan with timeline", "proficiency": 3, "signal": "Transparency, protects credibility"},
+            {"id": "Q_3_2_C", "text": "Reach out privately to resolve, then post update", "proficiency": 2, "signal": "Balanced approach"},
+            {"id": "Q_3_2_D", "text": "Ignore it and focus on fixing the underlying issue", "proficiency": 1, "signal": "Avoids reputation management"}
+          ]
+        },
+        {
+          "q_id": "Q_3_3",
+          "type": "scenario",
+          "text": "Month 11: Revenue dipped 15% this month. Economy is slowing. Team of 4 is anxious. You have 4 months of runway. How do you handle this?",
+          "assess": ["C7", "C8", "C2"],
+          "pressure_text": "Revenue dip + economic slowdown + anxious team.",
+          "options": [
+            {"id": "Q_3_3_A", "text": "Cut 2 team members immediately to extend runway", "proficiency": 1, "signal": "Reactive, destroys morale"},
+            {"id": "Q_3_3_B", "text": "Reduce your own salary first, then discuss with team transparently", "proficiency": 3, "signal": "Leads by example, builds trust"},
+            {"id": "Q_3_3_C", "text": "Call emergency meeting - be transparent, involve team in cost-cutting decisions", "proficiency": 3, "signal": "Transparency, psychological safety, collective problem-solving"},
+            {"id": "Q_3_3_D", "text": "Don't tell the team - you'll figure it out and don't want to cause panic", "proficiency": 1, "signal": "Lacks transparency, builds distrust"}
+          ]
+        },
+        {
+          "q_id": "Q_3_4",
+          "type": "open_text",
+          "text": "Looking back at your 11-month journey so far: What is the most important lesson you've learned about YOURSELF as a leader?",
+          "assess": ["C2", "C8"],
+          "ai_eval_prompt": "Evaluate depth of self-reflection, learning integration, and growth mindset. P3 if founder demonstrates genuine self-awareness about specific behavioral patterns."
+        }
+      ]
+    },
+    {
+      "id": "STAGE_WARROOM_PREP",
+      "name": "War Room Prep",
+      "title": "WAR ROOM PREP",
+      "stage_number": 3,
+      "goal": "Prepare for valuation defense",
+      "what_happens": ["Define metrics", "Clarify valuation", "Craft growth narrative"],
+      "pressure_injected": ["Valuation pushback", "ROI scrutiny", "Assumption challenged"],
+      "duration_minutes": 5,
+      "simulated_months": [12],
+      "competencies": ["C4", "C6", "C5"],
+      "questions": [
+        {
+          "q_id": "Q_WP_1",
+          "type": "open_text",
+          "text": "You're about to enter the War Room. In 2-3 sentences, what is your valuation and how do you justify it?",
+          "assess": ["C4", "C6"],
+          "ai_eval_prompt": "Evaluate financial logic, confidence, and narrative strength. P3 if founder uses numbers strategically with compelling growth story."
+        },
+        {
+          "q_id": "Q_WP_2",
+          "type": "open_text",
+          "text": "What is your capital ask? How much are you raising and for what percentage of equity? How will you use the funds?",
+          "assess": ["C4", "C5"],
+          "ai_eval_prompt": "Evaluate clarity of capital allocation plan, equity protection awareness, and strategic use of funds."
+        },
+        {
+          "q_id": "Q_WP_3",
+          "type": "open_text",
+          "text": "What is the ONE thing that makes your business UNSTOPPABLE in the next 3 years?",
+          "assess": ["C5", "C8"],
+          "ai_eval_prompt": "Evaluate strategic vision and credibility of growth narrative. P3 if founder articulates genuine competitive moat."
+        }
+      ]
+    },
+    {
+      "id": "STAGE_4_WARROOM",
+      "name": "War Room",
+      "title": "Stage 4: WAR ROOM",
+      "stage_number": 4,
+      "goal": "High-stakes negotiation with investor panel",
+      "what_happens": ["Equity negotiation", "Final deal decision", "Public credibility test"],
+      "pressure_injected": ["Take-it-or-leave-it offer", "Ethical dilemma", "Reputation risk"],
+      "duration_minutes": 15,
+      "simulated_months": [12],
+      "competencies": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
+      "questions": [
+        {
+          "q_id": "Q_WR_PITCH",
+          "type": "open_text",
+          "text": "Deliver your 1-minute War Room pitch. Use this structure:\n\nHello Sharks, my name is [NAME] and I am the founder of [BUSINESS].\n\n(The Problem) Today, [TARGET CUSTOMER] struggles with [PROBLEM]. This problem causes them [IMPACT].\n\n(The Solution) I created [PRODUCT], which [VALUE PROP]. It works by [HOW].\n\n(Why We're Different) Unlike [COMPETITORS], we [DIFFERENTIATION].\n\n(Proof) We validated this by [VALIDATION]. So far, we have [TRACTION].\n\n(Founder Fit) I am building this because [WHY ME]. The key lesson I've learned is [LESSON].\n\n(The Ask) We are raising $[AMOUNT] for [EQUITY]% equity. We will use this capital to [PLAN].",
+          "assess": ["C1", "C3", "C4", "C5", "C6", "C8"],
+          "ai_eval_prompt": "Evaluate pitch completeness, clarity, confidence, financial logic, and overall narrative strength. This is the final integrated assessment."
+        }
+      ]
+    }
+  ]
+}
