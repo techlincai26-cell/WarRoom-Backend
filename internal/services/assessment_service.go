@@ -480,12 +480,12 @@ func (s *AssessmentService) GetAssessment(assessmentID string) (*AssessmentState
 // ============================================
 
 type SubmitStageResult struct {
-	AIEvaluation   json.RawMessage   `json:"aiEvaluation"`
-	Proficiency    int               `json:"proficiency"`
-	StageCompleted bool              `json:"stageCompleted"`
-	NextStage      *NextStageInfo    `json:"nextStage,omitempty"`
-	SimCompleted   bool              `json:"simCompleted"`
-	StateUpdates   json.RawMessage   `json:"stateUpdates,omitempty"`
+	AIEvaluation   json.RawMessage `json:"aiEvaluation"`
+	Proficiency    int             `json:"proficiency"`
+	StageCompleted bool            `json:"stageCompleted"`
+	NextStage      *NextStageInfo  `json:"nextStage,omitempty"`
+	SimCompleted   bool            `json:"simCompleted"`
+	StateUpdates   json.RawMessage `json:"stateUpdates,omitempty"`
 }
 
 func (s *AssessmentService) SubmitStageResponses(assessmentID string, responses map[string]json.RawMessage) (*SubmitStageResult, error) {
@@ -726,8 +726,11 @@ func (s *AssessmentService) UseMentorLifeline(assessmentID string, mentorID stri
 
 	// Get current question for context
 	questionContext := "General business guidance"
-	if q := s.DataManager.GetQuestion(assessment.CurrentQuestionID); q != nil {
-		questionContext = q.Text
+	// Only include specific question context for non-ideation phases
+	if assessment.CurrentStage != "STAGE_NEG2_IDEATION" {
+		if q := s.DataManager.GetQuestion(assessment.CurrentQuestionID); q != nil {
+			questionContext = q.Text
+		}
 	}
 
 	// Generate mentor guidance via AI
