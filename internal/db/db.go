@@ -53,10 +53,16 @@ func Connect(cfg *config.Config) {
 	}
 
 	if err != nil {
-		log.Fatal("Failed to connect to database: ", err)
+		log.Printf("Failed to connect to configured database: %v", err)
+		log.Println("Falling back to local SQLite database (warroom.db)...")
+		DB, err = gorm.Open(sqlite.Open("warroom.db"), &gorm.Config{})
+		if err != nil {
+			log.Fatal("Failed to connect to fallback SQLite database: ", err)
+		}
+		log.Println("Connected to fallback SQLite database successfully")
+	} else {
+		log.Println("Connected to primary database successfully")
 	}
-
-	log.Println("Connected to database successfully")
 
 	// Auto Migrate
 	if cfg.RunMigrations {
