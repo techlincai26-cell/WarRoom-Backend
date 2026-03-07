@@ -1,6 +1,6 @@
 module war-room-backend
 
-go 1.25.3
+go 1.23
 
 require (
 	github.com/glebarez/sqlite v1.11.0

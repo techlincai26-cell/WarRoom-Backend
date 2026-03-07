@@ -1,5 +1,8 @@
 FROM golang:1.23-alpine AS builder
 
+ARG GOTOOLCHAIN=local
+ENV GOTOOLCHAIN=local
+
 WORKDIR /app
 
 # Install dependencies
