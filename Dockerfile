@@ -1,7 +1,4 @@
-FROM golang:1.23-alpine AS builder
-
-ARG GOTOOLCHAIN=local
-ENV GOTOOLCHAIN=local
+FROM golang:1.25-alpine AS builder
 
 WORKDIR /app
 
