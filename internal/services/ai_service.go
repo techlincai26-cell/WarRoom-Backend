@@ -524,3 +524,86 @@ Based on these specific decisions, ask ONE challenging follow-up question.`, use
 	question = strings.Trim(question, `"'`)
 	return question, nil
 }
+
+// ============================================
+// GENERATE DETAILED POST-SIMULATION ANALYSIS
+// ============================================
+
+// GenerateDetailedAnalysis creates a comprehensive AI report analyzing the participant's
+// entire simulation journey — what went well, what went wrong, and improvement areas.
+func (ai *AIService) GenerateDetailedAnalysis(
+	competencyRanking []map[string]interface{},
+	responseSummaries string,
+	investorSummary string,
+	entrepreneurType string,
+	roleFit string,
+	userIdea string,
+) (string, error) {
+
+	systemPrompt := `You are an expert business coach and entrepreneurship evaluator for KK's War Room 2.0 simulation.
+You have reviewed a founder's complete simulation journey — every decision, investor interaction, and competency score.
+
+Generate a DETAILED evaluation report in the following format. Use clear headings and bullet points.
+
+## What You Did Well
+- 3-5 specific strengths based on their decisions and scores
+
+## What Went Wrong
+- 3-5 specific mistakes or weak areas, referencing actual decisions they made
+
+## What Could Have Been Done Better
+- 3-5 actionable improvements with concrete examples
+
+## Competency Deep Dive
+- For each competency scored below 2.5, explain WHY it was low based on their responses
+
+## Role Fit Analysis
+- Explain why the identified role/archetype matches their decision patterns
+- Suggest the best organizational environment for them
+
+## Key Takeaways
+- 3 most important lessons from their simulation
+
+RULES:
+- Be specific and reference actual decisions, not generic advice
+- Be constructive but honest — point out real weaknesses
+- Use the competency data to support your analysis
+- Keep it under 800 words total
+- Write in second person ("You demonstrated...", "Your decision to...")`
+
+	userPrompt := fmt.Sprintf(`Founder's Business Idea: %s
+Entrepreneur Type: %s
+Recommended Role: %s
+
+Competency Rankings:
+%s
+
+Key Decisions & Responses:
+%s
+
+Investor Interactions:
+%s
+
+Based on all this data, provide a comprehensive evaluation.`, userIdea, entrepreneurType, roleFit, formatRankings(competencyRanking), responseSummaries, investorSummary)
+
+	messages := []ChatMessage{
+		{Role: "system", Content: systemPrompt},
+		{Role: "user", Content: userPrompt},
+	}
+
+	resp, err := ai.Call(messages)
+	if err != nil {
+		return "Detailed analysis could not be generated at this time.", err
+	}
+
+	return strings.TrimSpace(resp.Content), nil
+}
+
+func formatRankings(rankings []map[string]interface{}) string {
+	var lines []string
+	for _, r := range rankings {
+		lines = append(lines, fmt.Sprintf("- %s (%s): %.2f — %s",
+			r["code"], r["name"], r["weightedAverage"], r["category"]))
+	}
+	return strings.Join(lines, "\n")
+}

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"war-room-backend/internal/db"
@@ -1001,6 +1002,113 @@ func (s *AssessmentService) GenerateReport(assessmentID string) (*models.Report,
 	dealSummary["dealsOffered"] = dealsOffered
 	dealSummaryJSON, _ := json.Marshal(dealSummary)
 
+	// ---- Collect ALL user responses with question text ----
+	var allResponses []models.Response
+	db.DB.Where("assessmentId = ?", assessmentID).Order("startedAt ASC").Find(&allResponses)
+
+	// Build stage ID -> stage name map
+	stageIDToName := make(map[string]string)
+	for _, st := range stages {
+		stageIDToName[st.ID] = st.StageName
+	}
+
+	type UserResponseEntry struct {
+		StageName    string          `json:"stageName"`
+		QuestionID   string          `json:"questionId"`
+		QuestionText string          `json:"questionText"`
+		QuestionType string          `json:"questionType"`
+		Response     json.RawMessage `json:"response"`
+		Proficiency  *int            `json:"proficiency"`
+		AIFeedback   json.RawMessage `json:"aiFeedback"`
+	}
+
+	userResponseEntries := make([]UserResponseEntry, 0, len(allResponses))
+	var responseSummaryLines []string
+
+	for _, r := range allResponses {
+		stageName := stageIDToName[r.StageID]
+		questionText := r.QuestionID
+		q := s.DataManager.GetQuestion(r.QuestionID)
+		if q != nil {
+			questionText = q.Text
+		}
+
+		entry := UserResponseEntry{
+			StageName:    stageName,
+			QuestionID:   r.QuestionID,
+			QuestionText: questionText,
+			QuestionType: r.QuestionType,
+			Response:     r.ResponseData,
+			Proficiency:  r.ProficiencyScore,
+			AIFeedback:   r.AIEvaluation,
+		}
+		userResponseEntries = append(userResponseEntries, entry)
+
+		// Build summary for AI
+		var respMap map[string]interface{}
+		json.Unmarshal(r.ResponseData, &respMap)
+		respText := ""
+		switch r.QuestionType {
+		case "multiple_choice", "scenario":
+			if optID, ok := respMap["selectedOptionId"].(string); ok && q != nil {
+				for _, opt := range q.Options {
+					if opt.ID == optID {
+						respText = opt.Text
+						break
+					}
+				}
+			}
+		case "open_text":
+			if text, ok := respMap["text"].(string); ok {
+				if len(text) > 150 {
+					text = text[:150] + "..."
+				}
+				respText = text
+			}
+		}
+		profStr := ""
+		if r.ProficiencyScore != nil {
+			profStr = fmt.Sprintf(" (P%d)", *r.ProficiencyScore)
+		}
+		responseSummaryLines = append(responseSummaryLines, fmt.Sprintf("[%s] %s → %s%s", stageName, questionText, respText, profStr))
+	}
+
+	userResponsesJSON, _ := json.Marshal(userResponseEntries)
+
+	// Build investor summary for AI
+	var investorSummaryLines []string
+	for _, sc := range scorecards {
+		primaryScore := 0
+		if sc.PrimaryScore != nil {
+			primaryScore = *sc.PrimaryScore
+		}
+		investorSummaryLines = append(investorSummaryLines, fmt.Sprintf("- %s: Question=\"%s\" | Response=\"%s\" | Reaction=\"%s\" | Score=%d/5 | Decision=%s",
+			sc.InvestorName, sc.Question, sc.ParticipantResp, sc.InvestorReaction, primaryScore, sc.DealDecision))
+	}
+
+	// Generate detailed AI analysis
+	responseSummary := strings.Join(responseSummaryLines, "\n")
+	if len(responseSummary) > 4000 {
+		responseSummary = responseSummary[:4000] + "\n... (truncated)"
+	}
+	investorSummary := strings.Join(investorSummaryLines, "\n")
+	if investorSummary == "" {
+		investorSummary = "No investor interactions recorded."
+	}
+
+	detailedAnalysis, err := s.AIService.GenerateDetailedAnalysis(
+		rankingData,
+		responseSummary,
+		investorSummary,
+		entProfile.Type,
+		roleFit.Role,
+		assessment.UserIdea,
+	)
+	if err != nil {
+		log.Printf("[Report] Detailed analysis generation error: %v", err)
+		detailedAnalysis = "Detailed analysis could not be generated."
+	}
+
 	// Create report
 	report := &models.Report{
 		ID:                 uuid.New().String(),
@@ -1015,6 +1123,8 @@ func (s *AssessmentService) GenerateReport(assessmentID string) (*models.Report,
 		ActionPlan:         actionPlanJSON,
 		StageNarrations:    stageNarrationsJSON,
 		RoleFitMap:         roleFitJSON,
+		DetailedAnalysis:   detailedAnalysis,
+		UserResponses:      userResponsesJSON,
 		GeneratedAt:        time.Now(),
 	}
 

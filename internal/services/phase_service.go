@@ -41,9 +41,9 @@ type PhaseResponseOut struct {
 
 type PhaseScenarioOut struct {
 	ID            string `json:"id"`
-	CaseTitle     string `json:"caseTitle"`
+	ScenarioTitle string `json:"scenarioTitle"`
 	ScenarioSetup string `json:"scenarioSetup"`
-	LeaderPrompt  string `json:"leaderPrompt"` // personalized with leader name
+	LeaderPrompt  string `json:"leaderPrompt"` // AI-generated challenge from leader
 	LeaderID      string `json:"leaderId"`
 	LeaderName    string `json:"leaderName"`
 	FromStage     string `json:"fromStage"`
@@ -299,9 +299,10 @@ func (s *AssessmentService) SubmitPhase(assessmentID string, stageID string, res
 	}
 
 	// 12. Build phase scenario if transitioning (not for war room or completion)
+	// Now uses AI to generate a unified leader challenge based on user's responses
 	var phaseScenarioOut *PhaseScenarioOut
 	if nextStageInfo != nil && !simCompleted && nextStageID != "STAGE_4_WARROOM" {
-		scenario, err := s.buildPhaseScenario(assessmentID, stageID, nextStageID, assessment.SelectedLeaders)
+		scenario, err := s.buildPhaseScenario(assessmentID, stageID, nextStageID, assessment.SelectedLeaders, responses, assessment.UserIdea)
 		if err == nil && scenario != nil {
 			phaseScenarioOut = scenario
 		}
@@ -353,9 +354,10 @@ func (s *AssessmentService) computeStageScores(assessmentID, stageID string) map
 	return result
 }
 
-// buildPhaseScenario creates a PhaseScenario record for the transition.
-func (s *AssessmentService) buildPhaseScenario(assessmentID, fromStage, toStage string, selectedLeadersJSON json.RawMessage) (*PhaseScenarioOut, error) {
-	// Get scenario template from simulation data
+// buildPhaseScenario creates a unified leader challenge for the phase transition.
+// It uses AI to generate a personalized challenge question based on the user's actual responses.
+func (s *AssessmentService) buildPhaseScenario(assessmentID, fromStage, toStage string, selectedLeadersJSON json.RawMessage, responses map[string]json.RawMessage, userIdea string) (*PhaseScenarioOut, error) {
+	// Get scenario template from simulation data (for context/setup)
 	scenario := s.DataManager.GetPhaseTransitionScenario(fromStage, toStage)
 	if scenario == nil {
 		return nil, nil // No scenario defined for this transition
@@ -365,7 +367,6 @@ func (s *AssessmentService) buildPhaseScenario(assessmentID, fromStage, toStage 
 	var selectedLeaders []string
 	json.Unmarshal(selectedLeadersJSON, &selectedLeaders)
 	if len(selectedLeaders) == 0 {
-		// Default leaders if none selected yet
 		selectedLeaders = []string{"indira_nooyi", "jack_ma", "simon_sinek"}
 	}
 
@@ -375,20 +376,67 @@ func (s *AssessmentService) buildPhaseScenario(assessmentID, fromStage, toStage 
 	leaderIdx := int(existingScenarios) % len(selectedLeaders)
 	leaderID := selectedLeaders[leaderIdx]
 
-	// Get leader display name
+	// Get leader details
 	leader := s.DataManager.GetLeader(leaderID)
 	leaderName := leaderID
+	leaderSpec := "Business Strategy"
 	if leader != nil {
 		leaderName = leader.Name
+		if leader.Specialization != "" {
+			leaderSpec = leader.Specialization
+		}
 	}
 
-	// Personalize prompt
-	prompt := scenario.LeaderPromptTemplate
-	if leaderName != "" {
-		prompt = fmt.Sprintf("You get a call. It's %s. — \"%s\"", leaderName, scenario.LeaderPromptTemplate)
+	// Build a summary of the user's responses for AI context
+	var summaryLines []string
+	for qID, rawResp := range responses {
+		q := s.DataManager.GetQuestion(qID)
+		if q == nil {
+			continue
+		}
+		var respMap map[string]interface{}
+		json.Unmarshal(rawResp, &respMap)
+		switch q.Type {
+		case "multiple_choice", "scenario":
+			if optID, ok := respMap["selectedOptionId"].(string); ok {
+				for _, opt := range q.Options {
+					if opt.ID == optID {
+						summaryLines = append(summaryLines, fmt.Sprintf("- Q: %s → Chose: %s", q.Text, opt.Text))
+						break
+					}
+				}
+			}
+		case "open_text":
+			if text, ok := respMap["text"].(string); ok && text != "" {
+				truncated := text
+				if len(truncated) > 200 {
+					truncated = truncated[:200] + "..."
+				}
+				summaryLines = append(summaryLines, fmt.Sprintf("- Q: %s → %s", q.Text, truncated))
+			}
+		}
+	}
+	responsesSummary := strings.Join(summaryLines, "\n")
+	if responsesSummary == "" {
+		responsesSummary = "No detailed responses provided."
 	}
 
-	// Save scenario record (awaiting user response)
+	// Generate AI-powered leader challenge question
+	aiQuestion, err := s.AIService.GenerateLeaderChallenge(
+		fromStage,
+		responsesSummary,
+		userIdea,
+		leaderName,
+		leaderSpec,
+	)
+	if err != nil {
+		log.Printf("[PhaseScenario] AI leader challenge generation error: %v", err)
+		aiQuestion = scenario.LeaderPromptTemplate
+	}
+
+	prompt := fmt.Sprintf("%s asks: \"%s\"", leaderName, aiQuestion)
+
+	// Save scenario record
 	record := &models.PhaseScenario{
 		ID:            uuid.New().String(),
 		AssessmentID:  assessmentID,
@@ -404,7 +452,7 @@ func (s *AssessmentService) buildPhaseScenario(assessmentID, fromStage, toStage 
 
 	return &PhaseScenarioOut{
 		ID:            record.ID,
-		CaseTitle:     scenario.CaseTitle,
+		ScenarioTitle: scenario.CaseTitle,
 		ScenarioSetup: scenario.Setup,
 		LeaderPrompt:  prompt,
 		LeaderID:      leaderID,

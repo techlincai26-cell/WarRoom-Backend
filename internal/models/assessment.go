@@ -178,6 +178,8 @@ type Report struct {
 	ActionPlan         json.RawMessage `gorm:"column:actionPlan;type:json" json:"actionPlan"`
 	StageNarrations    json.RawMessage `gorm:"column:stageNarrations;type:json;not null" json:"stageNarrations"`
 	RoleFitMap         json.RawMessage `gorm:"column:roleFitMap;type:json" json:"roleFitMap"`
+	DetailedAnalysis   string          `gorm:"column:detailedAnalysis;type:text" json:"detailedAnalysis"`
+	UserResponses      json.RawMessage `gorm:"column:userResponses;type:json" json:"userResponses"`
 	GeneratedAt        time.Time       `gorm:"column:generatedAt" json:"generatedAt"`
 }
 
