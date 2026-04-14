@@ -74,7 +74,9 @@ func main() {
 	demo.POST("/generate-scenario", demoHandler.GenerateScenario)
 	demo.POST("/generate-followup", demoHandler.GenerateFollowup)
 	demo.POST("/generate-pitch", demoHandler.GeneratePitch)
+	demo.POST("/generate-pitch-qna", demoHandler.GeneratePitchQnA)
 	demo.POST("/generate-negotiation", demoHandler.GenerateNegotiation)
+	demo.POST("/generate-competency-report", demoHandler.GenerateCompetencyReport)
 	demo.POST("/evaluate-response", demoHandler.EvaluateResponse)
 	demo.POST("/evaluate-voice", demoHandler.EvaluateVoice)
 

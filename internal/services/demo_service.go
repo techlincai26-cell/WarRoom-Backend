@@ -62,6 +62,17 @@ type DemoFollowupScenario struct {
 	Context  string `json:"context"`
 }
 
+type CompetencyScore struct {
+	Trait string `json:"trait"`
+	Score int    `json:"score"`
+}
+
+type CompetencyReport struct {
+	OverallScore int               `json:"overallScore"`
+	Summary      string            `json:"summary"`
+	Competencies []CompetencyScore `json:"competencies"`
+}
+
 // ============================================
 // GENERATE FOLLOW-UP SCENARIO
 // ============================================
@@ -180,11 +191,61 @@ You MUST respond in valid JSON:
 }
 
 // ============================================
+// GENERATE PITCH Q&A SCENARIO
+// ============================================
+
+func (s *DemoService) GeneratePitchQnAScenario(introduction, pitchResponse string, round int) (*DemoFollowupScenario, error) {
+	focus := "Market & Customer Validation"
+	if round == 2 {
+		focus = "Monetization & Scalability"
+	}
+	systemPrompt := fmt.Sprintf(`You are an expert investor for KK's War Room.
+The founder just pitched. Ask a tough, realistic follow-up question.
+This is Question %d, focus on: %s.
+
+RULES:
+1. Ask the question directly as the investor.
+2. Keep it under 250 characters.
+3. The context must summarize what the question tests (e.g. "Defending Market Strategy").
+
+You MUST respond in valid JSON:
+{
+  "question": "<investor's question>",
+  "context": "<brief description of skill tested>"
+}`, round, focus)
+
+	userPrompt := fmt.Sprintf("BUSINESS IDEA: %s\n\nFOUNDER'S PITCH: %s", introduction, pitchResponse)
+
+	messages := []ChatMessage{
+		{Role: "system", Content: systemPrompt},
+		{Role: "user", Content: userPrompt},
+	}
+
+	var qna DemoFollowupScenario
+	resp, err := s.AI.Call(messages)
+	if err != nil {
+		return nil, err
+	}
+
+	content := stripMarkdownCodeBlocks(resp.Content)
+	if err := json.Unmarshal([]byte(content), &qna); err != nil {
+		return nil, err
+	}
+
+	return &qna, nil
+}
+
+// ============================================
 // GENERATE NEGOTIATION SCENARIO
 // ============================================
 
-func (s *DemoService) GenerateNegotiationScenario(introduction, pitchResponse string) (*DemoFollowupScenario, error) {
-	systemPrompt := `You are a tough but fair investor negotiating a deal for KK's War Room.
+func (s *DemoService) GenerateNegotiationScenario(introduction, pitchResponse string, round int, previousContext string) (*DemoFollowupScenario, error) {
+
+	var systemPrompt string
+	var userPrompt string
+
+	if round == 1 {
+		systemPrompt = `You are a tough but fair investor negotiating a deal for KK's War Room.
 The founder has just pitched their idea to you. You are interested but want to push for a specific deal.
 
 RULES:
@@ -199,8 +260,24 @@ You MUST respond in valid JSON:
   "question": "<investor's response and deal offer>",
   "context": "Negotiation & Deal-making"
 }`
+		userPrompt = fmt.Sprintf("BUSINESS IDEA: %s\n\nFOUNDER'S PITCH: %s", introduction, pitchResponse)
+	} else {
+		systemPrompt = `You are a tough but fair investor negotiating a deal for KK's War Room.
+The founder has just countered your initial offer. Respond to their counter-offer.
 
-	userPrompt := fmt.Sprintf("BUSINESS IDEA: %s\n\nFOUNDER'S PITCH: %s", introduction, pitchResponse)
+RULES:
+1. React to their counter-offer logically (accept with a condition, reject and hold firm, or meet in the middle).
+2. End with a final stance or question.
+3. Keep it under 400 characters.
+4. The context should be "Counter-Negotiation".
+
+You MUST respond in valid JSON:
+{
+  "question": "<investor's response to the counter-offer>",
+  "context": "Counter-Negotiation"
+}`
+		userPrompt = fmt.Sprintf("BUSINESS IDEA: %s\n\nPREVIOUS NEGOTIATION:\n%s", introduction, previousContext)
+	}
 
 	messages := []ChatMessage{
 		{Role: "system", Content: systemPrompt},
@@ -488,3 +565,54 @@ DO NOT invent or hallucinate speech content.`, introduction, question)
 
 	return &eval, nil
 }
+
+// ============================================
+// GENERATE COMPETENCY REPORT
+// ============================================
+
+func (s *DemoService) GenerateCompetencyReport(summary string) (*CompetencyReport, error) {
+	systemPrompt := `You are an expert startup assessor for KK's War Room.
+Based on the transcript of a founder's performance across various simulation stages, evaluate their core competencies.
+
+There are exactly 5 competencies to evaluate:
+"Problem Sensing", "Financial Discipline", "Strategic Thinking", "Power & Influence", "Value Creation".
+
+For each, provide a score from 1-10.
+Calculate the overall average score (1-10).
+Provide a 2-3 sentence overall summary of their founder profile.
+
+You MUST respond in valid JSON:
+{
+  "overallScore": 8,
+  "summary": "<2-3 sentence breakdown>",
+  "competencies": [
+    {"trait": "Problem Sensing", "score": 8},
+    {"trait": "Financial Discipline", "score": 7},
+    {"trait": "Strategic Thinking", "score": 9},
+    {"trait": "Power & Influence", "score": 6},
+    {"trait": "Value Creation", "score": 8}
+  ]
+}`
+
+	userPrompt := fmt.Sprintf("FOUNDER PERFORMANCE SUMMARY:\n\n%s", summary)
+
+	messages := []ChatMessage{
+		{Role: "system", Content: systemPrompt},
+		{Role: "user", Content: userPrompt},
+	}
+
+	resp, err := s.AI.Call(messages)
+	if err != nil {
+		log.Printf("[DemoService] GenerateCompetencyReport failed: %v", err)
+		return nil, err
+	}
+
+	var report CompetencyReport
+	content := stripMarkdownCodeBlocks(resp.Content)
+	if err := json.Unmarshal([]byte(content), &report); err != nil {
+		return nil, err
+	}
+
+	return &report, nil
+}
+

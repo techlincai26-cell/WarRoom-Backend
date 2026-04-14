@@ -49,9 +49,21 @@ type GeneratePitchRequest struct {
 	Introduction string `json:"introduction"`
 }
 
-type GenerateNegotiationRequest struct {
+type GeneratePitchQnARequest struct {
 	Introduction  string `json:"introduction"`
 	PitchResponse string `json:"pitchResponse"`
+	RoundNumber   int    `json:"roundNumber"`
+}
+
+type GenerateNegotiationRequest struct {
+	Introduction     string `json:"introduction"`
+	PitchResponse    string `json:"pitchResponse"`
+	RoundNumber      int    `json:"roundNumber"`
+	PreviousContext  string `json:"previousContext"`
+}
+
+type GenerateCompetencyReportRequest struct {
+	Summary string `json:"summary"`
 }
 
 // ============================================
@@ -135,6 +147,28 @@ func (h *DemoHandler) GeneratePitch(c echo.Context) error {
 }
 
 // ============================================
+// POST /api/demo/generate-pitch-qna
+// ============================================
+
+func (h *DemoHandler) GeneratePitchQnA(c echo.Context) error {
+	req := new(GeneratePitchQnARequest)
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request"})
+	}
+
+	if req.Introduction == "" || req.PitchResponse == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Introduction and pitchResponse are required"})
+	}
+
+	qna, err := h.Service.GeneratePitchQnAScenario(req.Introduction, req.PitchResponse, req.RoundNumber)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate pitch Q&A scenario: " + err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, qna)
+}
+
+// ============================================
 // POST /api/demo/generate-negotiation
 // ============================================
 
@@ -148,12 +182,34 @@ func (h *DemoHandler) GenerateNegotiation(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Introduction and pitchResponse are required"})
 	}
 
-	negotiation, err := h.Service.GenerateNegotiationScenario(req.Introduction, req.PitchResponse)
+	negotiation, err := h.Service.GenerateNegotiationScenario(req.Introduction, req.PitchResponse, req.RoundNumber, req.PreviousContext)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate negotiation scenario"})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate negotiation scenario: " + err.Error()})
 	}
 
 	return c.JSON(http.StatusOK, negotiation)
+}
+
+// ============================================
+// POST /api/demo/generate-competency-report
+// ============================================
+
+func (h *DemoHandler) GenerateCompetencyReport(c echo.Context) error {
+	req := new(GenerateCompetencyReportRequest)
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request"})
+	}
+
+	if req.Summary == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Summary is required"})
+	}
+
+	report, err := h.Service.GenerateCompetencyReport(req.Summary)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate competency report: " + err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, report)
 }
 
 // ============================================
