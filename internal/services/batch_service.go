@@ -64,7 +64,7 @@ type BatchWithCount struct {
 // ListBatches returns all batches with participant counts.
 func (s *BatchService) ListBatches() ([]BatchWithCount, error) {
 	var batches []models.Batch
-	if err := db.DB.Order("createdAt DESC").Find(&batches).Error; err != nil {
+	if err := db.DB.Order("created_at DESC").Find(&batches).Error; err != nil {
 		return nil, err
 	}
 
