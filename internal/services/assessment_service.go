@@ -1601,8 +1601,12 @@ func (s *AssessmentService) RespondToInvestorAudio(assessmentID string, investor
 func (s *AssessmentService) GenerateReport(assessmentID string) (*models.Report, error) {
 	// First check if report already exists
 	var existingReport models.Report
-	if err := db.DB.Where("assessmentId = ? AND reportType = ?", assessmentID, "FINAL").Order("createdAt DESC").First(&existingReport).Error; err == nil {
+	err := db.DB.Where("assessmentId = ? AND reportType = ?", assessmentID, "FINAL").Order("generatedAt DESC").First(&existingReport).Error
+	if err == nil {
 		return &existingReport, nil
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, fmt.Errorf("failed to fetch existing report: %w", err)
 	}
 
 	var assessment models.Assessment
@@ -1848,7 +1852,9 @@ func (s *AssessmentService) GenerateReport(assessmentID string) (*models.Report,
 		GeneratedAt:        time.Now(),
 	}
 
-	db.DB.Create(report)
+	if err := db.DB.Create(report).Error; err != nil {
+		return nil, fmt.Errorf("failed to save generated report: %w", err)
+	}
 
 	log.Printf("[Report] Generated for assessment %s: type=%s, role=%s", assessmentID, entProfile.Type, roleFit.Role)
 	return report, nil
