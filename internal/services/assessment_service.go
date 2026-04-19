@@ -1874,6 +1874,7 @@ func (s *AssessmentService) generateActionPlan(ranked []*CompetencyResult) []map
 		"C6": "Engage in roleplay negotiation sessions. Learn to 'Anchor' and 'Walk Away' with confidence.",
 		"C7": "Define your company's core values today. Hire only against these values and fire fast if they don't fit.",
 		"C8": "Schedule 15 minutes of uninterrupted reflection at the end of every day to review your key decisions.",
+		"C9": "Practice deliberate failure recovery — after every setback, write what you learned, what you'd do differently, and execute within 48 hours.",
 	}
 
 	// Focus on bottom 3 competencies

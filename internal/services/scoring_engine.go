@@ -49,16 +49,16 @@ var StageWeightMatrix = map[string]map[string]int{
 		"C3": 40, "C4": 40, "C5": 20,
 	},
 	"STAGE_1_VALIDATION": {
-		"C1": 30, "C2": 30, "C4": 15, "C7": 25,
+		"C1": 30, "C2": 30, "C4": 15, "C7": 25, "C9": 25,
 	},
 	"STAGE_2A_GROWTH": {
-		"C3": 20, "C4": 35, "C5": 25, "C7": 20,
+		"C3": 20, "C4": 35, "C5": 25, "C7": 20, "C9": 35,
 	},
 	"STAGE_2B_EXPANSION": {
 		"C3": 20, "C4": 20, "C5": 25, "C6": 35,
 	},
 	"STAGE_3_SCALE": {
-		"C2": 20, "C3": 20, "C7": 35, "C8": 25,
+		"C2": 20, "C3": 20, "C7": 35, "C8": 25, "C9": 25,
 	},
 	"STAGE_WARROOM_PREP": {
 		"C4": 30, "C5": 25, "C6": 30, "C8": 15,
@@ -91,14 +91,14 @@ type EvidenceItem struct {
 	AIEval      json.RawMessage `json:"aiEval,omitempty"` // Added for deeper analysis
 }
 
-// CalculateCompetencyScores calculates weighted average scores for all 8 competencies
+// CalculateCompetencyScores calculates weighted average scores for all 9 competencies
 func (se *ScoringEngine) CalculateCompetencyScores(
 	stageScores map[string]map[string][]int, // stage -> competency -> list of P-scores
 	evidence map[string]map[string][]EvidenceItem, // stage -> comp -> items
 ) map[string]*CompetencyResult {
 	results := make(map[string]*CompetencyResult)
 
-	// Initialize all 8 competencies
+	// Initialize all 9 competencies
 	competencyNames := map[string]string{
 		"C1": "Problem Sensing",
 		"C2": "Learning Agility",
@@ -108,6 +108,7 @@ func (se *ScoringEngine) CalculateCompetencyScores(
 		"C6": "Power & Influence",
 		"C7": "Team & Customer Management",
 		"C8": "Value Creation & Credibility",
+		"C9": "Perseverance & Adaptability",
 	}
 
 	for code, name := range competencyNames {
