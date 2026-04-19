@@ -291,11 +291,25 @@ func (s *AssessmentService) SubmitPhase(assessmentID string, stageID string, res
 	}
 
 	assessment.AccumulatedExpenses += stageExpenses
-	// Initial revenue estimate (stale, will be refined in background)
-	revenueProjection := assessment.RevenueProjection
+
+	// Compute revenue projection synchronously so the frontend gets an accurate value.
+	// We update competency scores first, then compute revenue based on the user's
+	// actual proficiency — this ensures differentiated leaderboard values per user.
+	s.BatchUpdateCompetencyScores(assessmentID, stageID, stageProficiencies, compList)
+
+	stageData := s.DataManager.GetStage(stageID)
+	allCompScores := s.computeAllCompetencyScores(assessmentID)
+	avgProficiency, totalResponses := s.getAssessmentProficiencyStats(assessmentID)
+
+	revSvc := NewRevenueProjectionService()
+	revenueProjection := revSvc.ComputeRevenueProjection(stageData.StageNumber, allCompScores, avgProficiency, totalResponses)
+
+	revenueProjection -= assessment.AccumulatedExpenses
 	if revenueProjection < 0 {
 		revenueProjection = 0
 	}
+
+	assessment.RevenueProjection = revenueProjection
 	assessment.LastActiveAt = &now
 	db.DB.Save(&assessment)
 
@@ -315,8 +329,10 @@ func (s *AssessmentService) SubmitPhase(assessmentID string, stageID string, res
 	}, nil
 }
 
-// processPhaseResultsAsync handles AI evaluation of open-text and recalculates all assessment metrics
-// in the background to improve UI responsiveness.
+// processPhaseResultsAsync handles AI evaluation of open-text responses and, if any
+// existed, recomputes competency scores and revenue with the refined AI-scored proficiency.
+// Revenue and competency scores are already computed synchronously in SubmitPhase,
+// so this is a refinement pass that also broadcasts leaderboard updates.
 func (s *AssessmentService) processPhaseResultsAsync(
 	assessmentID, stageID string,
 	openTextTasks []BatchEvaluationItem,
@@ -325,7 +341,8 @@ func (s *AssessmentService) processPhaseResultsAsync(
 	compList []string,
 ) {
 	// 1. Batch AI evaluation for open-text if any
-	if len(openTextTasks) > 0 {
+	hasOpenText := len(openTextTasks) > 0
+	if hasOpenText {
 		compDefs := s.DataManager.GetCompetencyDefs()
 		batchEvals, err := s.AIService.BatchEvaluateOpenText(openTextTasks, compDefs)
 		if err == nil {
@@ -337,45 +354,44 @@ func (s *AssessmentService) processPhaseResultsAsync(
 						"proficiencyScore": eval.Proficiency,
 						"aiEvaluation":     aiEvalJSON,
 					})
-
-				// Update the local map so metrics use the AI scores
-				for range openTextTasks[0].Competencies {
-					// Dummy loop to keep context logic similar
-				}
 			}
 		}
 	}
 
-	// 2. Recalculate everything from DB to ensure consistency
-	s.BatchUpdateCompetencyScores(assessmentID, stageID, stageProficiencies, compList)
+	// 2. Recompute competency scores and revenue if AI refined open-text scores
+	if hasOpenText {
+		s.BatchUpdateCompetencyScores(assessmentID, stageID, stageProficiencies, compList)
 
-	// 3. Update Revenue Projection and Assessment Record
-	var assessment models.Assessment
-	db.DB.First(&assessment, "id = ?", assessmentID)
+		// 3. Update Revenue Projection with refined AI scores
+		var assessment models.Assessment
+		db.DB.First(&assessment, "id = ?", assessmentID)
 
-	stageData := s.DataManager.GetStage(stageID)
-	allCompScores := s.computeAllCompetencyScores(assessmentID)
-	avgProficiency, totalResponses := s.getAssessmentProficiencyStats(assessmentID)
+		stageData := s.DataManager.GetStage(stageID)
+		allCompScores := s.computeAllCompetencyScores(assessmentID)
+		avgProficiency, totalResponses := s.getAssessmentProficiencyStats(assessmentID)
 
-	revSvc := NewRevenueProjectionService()
-	revenueProjection := revSvc.ComputeRevenueProjection(stageData.StageNumber, allCompScores, avgProficiency, totalResponses)
+		revSvc := NewRevenueProjectionService()
+		revenueProjection := revSvc.ComputeRevenueProjection(stageData.StageNumber, allCompScores, avgProficiency, totalResponses)
 
-	revenueProjection -= assessment.AccumulatedExpenses
-	if revenueProjection < 0 {
-		revenueProjection = 0
+		revenueProjection -= assessment.AccumulatedExpenses
+		if revenueProjection < 0 {
+			revenueProjection = 0
+		}
+
+		assessment.RevenueProjection = revenueProjection
+		db.DB.Save(&assessment)
 	}
 
-	assessment.RevenueProjection = revenueProjection
-	db.DB.Save(&assessment)
-
-	// 4. Broadcast updated leaderboard
+	// 4. Broadcast updated leaderboard (always)
+	var assessmentForBroadcast models.Assessment
+	db.DB.First(&assessmentForBroadcast, "id = ?", assessmentID)
 	batchSvc := NewBatchService()
-	entries, _ := batchSvc.GetLeaderboard(assessment.BatchCode)
+	entries, _ := batchSvc.GetLeaderboard(assessmentForBroadcast.BatchCode)
 	iEntries := make([]interface{}, len(entries))
 	for i, e := range entries {
 		iEntries[i] = e
 	}
-	broadcast.Broadcast(assessment.BatchCode, iEntries)
+	broadcast.Broadcast(assessmentForBroadcast.BatchCode, iEntries)
 }
 
 // Optimized helper methods using SQL aggregations where possible
