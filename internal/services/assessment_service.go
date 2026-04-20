@@ -16,7 +16,6 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 // ============================================
@@ -613,18 +612,16 @@ func (s *AssessmentService) GetDynamicScenario(assessmentID string, stageID stri
 		CreatedAt:    time.Now(),
 	}
 
-	if err := db.DB.Clauses(clause.OnConflict{
-		Columns: []clause.Column{{Name: "assessment_id"}, {Name: "stage_id"}, {Name: "question_id"}},
-		DoUpdates: clause.Assignments(map[string]interface{}{
+	if err := db.DB.Where("assessment_id = ? AND stage_id = ? AND question_id = ?", assessmentID, stageID, questionID).
+		Assign(map[string]interface{}{
+			"id":            scenario.ID,
 			"question_text": aiResp.Question,
 			"options":       optionsJSON,
-			"created_at":    time.Now(),
-		}),
-	}).Create(&scenario).Error; err != nil {
-		return nil, err
-	}
-
-	if err := db.DB.Where("assessment_id = ? AND stage_id = ? AND question_id = ?", assessmentID, stageID, questionID).First(&scenario).Error; err != nil {
+			"created_at":    scenario.CreatedAt,
+			"assessment_id": assessmentID,
+			"stage_id":      stageID,
+			"question_id":   questionID,
+		}).FirstOrCreate(&scenario).Error; err != nil {
 		return nil, err
 	}
 
