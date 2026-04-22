@@ -176,8 +176,6 @@ func (s *AssessmentService) CheckBatchActive(userID string) error {
 	return nil
 }
 
-
-
 // ============================================
 // SUBMIT RESPONSE
 // ============================================
@@ -888,7 +886,7 @@ func (s *AssessmentService) BatchUpdateCompetencyScores(assessmentID string, cur
 	}
 
 	var competencyScores []models.CompetencyScore
-	if err := db.DB.Where("assessmentId = ? AND competencyCode IN ?", assessmentID, competencies).Find(&competencyScores).Error; err != nil {
+	if err := db.DB.Where("assessmentId = ?", assessmentID).Find(&competencyScores).Error; err != nil {
 		return
 	}
 
