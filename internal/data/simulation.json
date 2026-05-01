@@ -968,6 +968,25 @@
                             "signal": "Custom value proposition"
                         }
                     ]
+                },
+                {
+                    "q_id": "Q_NEG2_8",
+                    "type": "open_text",
+                    "tag": "Industry",
+                    "text": "What is the specific domain or industry of your business?",
+                    "assess": ["C1"],
+                    "ai_eval_prompt": "Evaluate clarity of the chosen domain/industry."
+                },
+                {
+                    "q_id": "Q_NEG2_9",
+                    "type": "multiple_choice",
+                    "tag": "Technicality",
+                    "text": "Is the core of your business idea primarily technical (e.g., deep software engineering, AI, complex tech infrastructure)?",
+                    "assess": ["C1"],
+                    "options": [
+                        {"id": "Q_NEG2_9_A", "text": "Yes, it is a technical startup", "signal": "Technical focus"},
+                        {"id": "Q_NEG2_9_B", "text": "No, it is primarily non-technical (operations, physical product, services, basic e-commerce)", "signal": "Non-technical focus"}
+                    ]
                 }
             ]
         },

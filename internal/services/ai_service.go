@@ -615,6 +615,8 @@ RED FLAG triggers (each causes -1 penalty):
 - Defensive or aggressive tone
 - Contradictions detected in their story
 
+CRITICAL RULE: NEVER mention internal simulation mechanics, game terms, or phases (like "phase 2 of negotiation"). Stay completely in character as a real-world investor reacting to a real-world pitch.
+
 Respond in valid JSON:
 {
   "transcription": "<exact transcription of what was said>",
@@ -884,6 +886,8 @@ RED FLAG triggers (each causes -1 penalty):
 - Overuse of hype language without substance
 - Defensive or aggressive tone
 - Contradictions detected in their story
+
+CRITICAL RULE: NEVER mention internal simulation mechanics, game terms, or phases (like "phase 2 of negotiation"). Stay completely in character as a real-world investor reacting to a real-world pitch.
 
 Respond in valid JSON:
 {
@@ -1160,6 +1164,10 @@ func (ai *AIService) GenerateDynamicScenario(
 	previousResponses string,
 	userIdea string,
 	leaderName string,
+	domain string,
+	isTechnical bool,
+	level int,
+	isFirstScenarioInPhase bool,
 ) (*DynamicScenarioResponse, error) {
 
 	// Build competency context
@@ -1180,6 +1188,27 @@ func (ai *AIService) GenerateDynamicScenario(
 	var scenario DynamicScenarioResponse
 	var lastParseErr error
 
+	// Interpret level and technical context
+	levelContext := "Professional business manager level. Use standard professional terminology."
+	if level == 1 {
+		levelContext = "Student/Entry level. Scale down the complexity of the business jargon to a school/college level. The leader's tone should be more of a friendly mentor or teacher while still posing a realistic challenge."
+	}
+
+	domainContext := "General Business"
+	if domain != "" {
+		domainContext = domain
+	}
+	if !isTechnical {
+		domainContext += " (Non-Technical Focus - focus on operations, marketing, sales, or physical product, not deep software/tech engineering)"
+	} else {
+		domainContext += " (Technical Focus - suitable for software, deep tech, AI, etc.)"
+	}
+
+	firstScenarioInstruction := ""
+	if isFirstScenarioInPhase {
+		firstScenarioInstruction = "CRITICAL: Since this is the FIRST scenario of the phase, you MUST base the challenge on a REAL-WORLD CASE STUDY. Describe a scenario that actually happened to a well-known company in their specific domain (" + domainContext + "), and ask the user 'What would you do if it is your case?' or 'How would you navigate this scenario in your startup?'."
+	}
+
 	for attempt := 1; attempt <= 3; attempt++ {
 		systemPrompt := fmt.Sprintf(`You are an expert business simulation designer for KK's War Room 2.0.
 Your task is to generate a REAL-WORLD SIMULATION SCENARIO based on the participant's business journey.
@@ -1196,7 +1225,13 @@ RESEARCH BACKGROUND:
 COMPETENCIES TO ANALYZE:
 %s
 
-PARTICIPANT'S BUSINESS:
+PARTICIPANT'S BUSINESS IDEA:
+%s
+
+DOMAIN / INDUSTRY FOCUS:
+%s
+
+DIFFICULTY / TONE LEVEL:
 %s
 
 PREVIOUS DECISIONS SUMMARY:
@@ -1206,10 +1241,10 @@ RULES:
 1. Generate ONE challenging, realistic business scenario related to the current stage goal that directly resulted from the participant's previous decisions.
 2. The scenario MUST be presented as being asked directly by the leader: %s, speaking in their authentic voice and tone.
 3. EXPLICITLY reference their specific past decisions and overall performance from previous phases in the scenario description. Do NOT use a generic prefix. The leader should naturally weave the consequences of the user's actual past decisions into the new challenge.
-4. End the scenario with an engaging question from the leader like: "How will you handle this?" or "What's your next move?"
+4. %s
 5. Provide exactly FOUR options.
 6. Each option MUST include proficiency 1, 2, or 3 (at least one option for each level across all four).
-7. Keep output concise: question <= 300 chars, each option text <= 140 chars, each feedback <= 120 chars.
+7. Keep output concise: question <= 400 chars, each option text <= 140 chars, each feedback <= 120 chars.
 8. Return ONLY valid, complete, and compact JSON that directly represents the DynamicScenarioResponse structure. No markdown, no code fences, no extra text, no wrapping JSON objects.
 
 EXAMPLE OF EXPECTED JSON OUTPUT:
@@ -1237,7 +1272,7 @@ EXAMPLE OF EXPECTED JSON OUTPUT:
       "feedback": "Feedback for option 4"
     }
   ]
-}`, questionContext, stageGoal, researchBackground, compContext, userIdea, previousResponses, leaderName)
+}`, questionContext, stageGoal, researchBackground, compContext, userIdea, domainContext, levelContext, previousResponses, leaderName, firstScenarioInstruction)
 
 		userPrompt := "Return ONLY the JSON object as specified in the rules and example."
 		if attempt > 1 {

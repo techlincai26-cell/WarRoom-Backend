@@ -49,6 +49,8 @@ func NewAssessmentService(dm *DataManager) *AssessmentService {
 type CreateAssessmentRequest struct {
 	Level             int      `json:"level"` // 1 or 2
 	UserIdea          string   `json:"userIdea,omitempty"`
+	Domain            string   `json:"domain,omitempty"`
+	IsTechnical       bool     `json:"isTechnical,omitempty"`
 	BatchCode         string   `json:"batchCode,omitempty"`
 	SelectedMentors   []string `json:"selectedMentors,omitempty"`
 	SelectedLeaders   []string `json:"selectedLeaders,omitempty"`
@@ -117,6 +119,10 @@ func (s *AssessmentService) CreateAssessment(userID string, setupData json.RawMe
 	if req.UserIdea != "" {
 		assessment.UserIdea = req.UserIdea
 	}
+	if req.Domain != "" {
+		assessment.Domain = req.Domain
+	}
+	assessment.IsTechnical = req.IsTechnical
 
 	if err := db.DB.Create(assessment).Error; err != nil {
 		return nil, fmt.Errorf("failed to create assessment: %w", err)
@@ -590,6 +596,17 @@ func (s *AssessmentService) GetDynamicScenario(assessmentID string, stageID stri
 		leaderName = leader.Name
 	}
 
+	// Determine if this is the first dynamic scenario in the current stage
+	isFirstScenarioInPhase := false
+	for _, q := range stage.Questions {
+		if q.Type == "dynamic_scenario" {
+			if q.QID == questionID {
+				isFirstScenarioInPhase = true
+			}
+			break // Found the first one
+		}
+	}
+
 	aiResp, err := s.AIService.GenerateDynamicScenario(
 		questionContext,
 		stage.Goal,
@@ -599,6 +616,10 @@ func (s *AssessmentService) GetDynamicScenario(assessmentID string, stageID stri
 		previousResponsesStr,
 		assessment.UserIdea,
 		leaderName,
+		assessment.Domain,
+		assessment.IsTechnical,
+		assessment.Level,
+		isFirstScenarioInPhase,
 	)
 	if err != nil {
 		log.Printf("[Assessment] Dynamic scenario generation failed for %s, using fail-safe scenario: %v", questionID, err)

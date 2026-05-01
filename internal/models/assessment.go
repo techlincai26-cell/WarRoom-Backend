@@ -34,6 +34,8 @@ type Assessment struct {
 	// Business context
 	BusinessContext json.RawMessage `gorm:"column:businessContext;type:json" json:"businessContext"`
 	UserIdea        string          `gorm:"column:userIdea;type:text" json:"userIdea"`
+	Domain          string          `gorm:"column:domain;type:varchar(255)" json:"domain"`
+	IsTechnical     bool            `gorm:"column:is_technical;not null;default:false" json:"isTechnical"`
 
 	// Simulation state
 	FinancialState json.RawMessage `gorm:"column:financialState;type:json" json:"financialState"`
@@ -90,6 +92,16 @@ type Stage struct {
 	StateSnapshot json.RawMessage `gorm:"column:stateSnapshot;type:json" json:"stateSnapshot"`
 	CreatedAt     time.Time       `gorm:"column:createdAt" json:"createdAt"`
 	UpdatedAt     time.Time       `gorm:"column:updatedAt" json:"updatedAt"`
+}
+
+// ============================================
+// STAGE PROFICIENCY STAT (Helper)
+// ============================================
+
+type StageProficiencyStat struct {
+	StageNumber int     `gorm:"column:stage_number"`
+	Avg         float64 `gorm:"column:avg"`
+	Count       int     `gorm:"column:count"`
 }
 
 // ============================================

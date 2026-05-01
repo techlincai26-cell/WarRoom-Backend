@@ -2,6 +2,7 @@ package services
 
 import (
 	"math"
+	"war-room-backend/internal/models"
 )
 
 // RevenueProjectionService computes a simulated projected ARR for the leaderboard.
@@ -15,46 +16,52 @@ func NewRevenueProjectionService() *RevenueProjectionService {
 
 // ComputeRevenueProjection returns a projected ARR (in currency units as int64).
 //
-// stageIndex: 0–8 (0=ideation … 8=warroom)
+// stageIndex: actual StageNumber of the active phase
 // allCompScores: map of competency code → weighted average score (1.0–3.0) across ALL completed stages
-// avgProficiency: average proficiency score across all responses (1.0–3.0)
-// totalResponses: how many questions the user has answered so far
+// stageStats: map of stage number -> proficiency stats for that stage
 func (s *RevenueProjectionService) ComputeRevenueProjection(
 	stageIndex int,
 	allCompScores map[string]float64,
-	avgProficiency float64,
-	totalResponses int,
+	stageStats map[int]models.StageProficiencyStat,
 ) int64 {
-	// Revenue should only start after Phase 0 (Commitment) completes.
-	// When Phase 0 completes, stageIndex is 0, so it calculates the initial revenue for Phase 1.
-	if stageIndex < 0 {
+	// Start with baseline revenue
+	arr := 100000.0
+
+	// Define the logical order of stages
+	stageSequence := []int{-2, -1, 0, 1, 2, 3, 5, 4}
+
+	// Calculate compounded ARR stage-by-stage up to current stage
+	passedStage0 := false
+	for _, sNum := range stageSequence {
+		if sNum > stageIndex {
+			break
+		}
+
+		stat, exists := stageStats[sNum]
+		if !exists || stat.Count == 0 {
+			arr *= 0.9 // Penalty for skipping/inaction
+		} else {
+			if stat.Avg >= 2.5 {
+				arr *= 2.0 // Strong growth for good plan/strategy
+			} else if stat.Avg >= 1.5 {
+				arr *= 1.3 // Steady growth for neutral decisions
+			} else {
+				arr *= 0.8 // Loss of revenue for wrong decisions
+			}
+		}
+
+		if sNum == 0 {
+			passedStage0 = true
+		}
+	}
+
+	// Revenue should only start compounding past 100k after Phase 0 (Commitment)
+	if !passedStage0 || stageIndex < 0 {
 		return 0
 	}
 
-	// Stage growth multiplier — revenue potential increases as you progress
-	stageMultipliers := []float64{
-		1.0,  // Ideation
-		1.2,  // Vision
-		1.5,  // Commitment
-		2.0,  // Validation
-		3.5,  // Growth A
-		5.0,  // Growth B / Expansion
-		7.0,  // Scale
-		9.0,  // War Room Prep
-		12.0, // War Room
-	}
-	idx := stageIndex
-	if idx < 0 {
-		idx = 0
-	}
-	if idx >= len(stageMultipliers) {
-		idx = len(stageMultipliers) - 1
-	}
-	stageMul := stageMultipliers[idx]
-
-	// Overall competency multiplier from ALL 8 competencies (not just C4/C5).
-	// Each competency is scored 1–3.  Average across those that exist;
-	// missing competencies are treated as the neutral baseline (2.0).
+	// Overall competency multiplier from ALL 8 competencies.
+	// Each competency is scored 1–3. Average across those that exist.
 	compSum := 0.0
 	compCount := 0
 	for _, code := range []string{"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"} {
@@ -69,28 +76,9 @@ func (s *RevenueProjectionService) ComputeRevenueProjection(
 	}
 
 	// Map avgComp (1.0–3.0) to a multiplier range (0.4–1.6).
-	// Score 1.0 → 0.4, Score 2.0 → 1.0, Score 3.0 → 1.6
 	competencyMul := 0.4 + (avgComp-1.0)*0.6
 
-	// Proficiency multiplier from the user's average answer quality.
-	// avgProficiency (1–3) mapped to 0.5–1.5
-	if avgProficiency < 1.0 {
-		avgProficiency = 2.0 // default when no responses yet
-	}
-	proficiencyMul := 0.5 + (avgProficiency-1.0)*0.5
-
-	// Engagement multiplier: more questions answered = better traction signal.
-	// Diminishing returns via log; 10 answers ≈ 1.0x, 30 ≈ 1.15x, 60 ≈ 1.25x
-	engagementMul := 1.0
-	if totalResponses > 0 {
-		engagementMul = 1.0 + 0.15*math.Log10(float64(totalResponses))
-	}
-
-	// Base revenue tied to stage (replaces the old customer-count approach
-	// which was always 0). This is the "potential market" unlocked at each stage.
-	baseRevenue := stageMul * 100_000
-
-	projected := baseRevenue * competencyMul * proficiencyMul * engagementMul
+	projected := arr * competencyMul
 
 	// Cap at a reasonable simulation ceiling
 	projected = math.Min(projected, 500_000_000) // ₹50Cr cap

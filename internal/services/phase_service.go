@@ -83,6 +83,22 @@ func (s *AssessmentService) SubmitPhase(assessmentID string, stageID string, res
 				assessment.UserIdea = idea
 			}
 		}
+
+		if val, ok := responses["Q_NEG2_8"]; ok {
+			var respMap map[string]interface{}
+			json.Unmarshal(val, &respMap)
+			if domainText, exists := respMap["text"].(string); exists && domainText != "" {
+				assessment.Domain = domainText
+			}
+		}
+
+		if val, ok := responses["Q_NEG2_9"]; ok {
+			var respMap map[string]interface{}
+			json.Unmarshal(val, &respMap)
+			if isTechOption, exists := respMap["selectedOptionId"].(string); exists {
+				assessment.IsTechnical = isTechOption == "Q_NEG2_9_A"
+			}
+		}
 	}
 
 	// 3. Get or create Stage record
@@ -297,12 +313,13 @@ func (s *AssessmentService) SubmitPhase(assessmentID string, stageID string, res
 	// actual proficiency — this ensures differentiated leaderboard values per user.
 	s.BatchUpdateCompetencyScores(assessmentID, stageID, stageProficiencies, compList)
 
+	// Use new compounding logic
 	stageData := s.DataManager.GetStage(stageID)
 	allCompScores := s.computeAllCompetencyScores(assessmentID)
-	avgProficiency, totalResponses := s.getAssessmentProficiencyStats(assessmentID)
+	stageStats := s.getStageProficiencyStats(assessmentID)
 
 	revSvc := NewRevenueProjectionService()
-	revenueProjection := revSvc.ComputeRevenueProjection(stageData.StageNumber, allCompScores, avgProficiency, totalResponses)
+	revenueProjection := revSvc.ComputeRevenueProjection(stageData.StageNumber, allCompScores, stageStats)
 
 	revenueProjection -= assessment.AccumulatedExpenses
 	if revenueProjection < 0 {
@@ -368,10 +385,10 @@ func (s *AssessmentService) processPhaseResultsAsync(
 
 		stageData := s.DataManager.GetStage(stageID)
 		allCompScores := s.computeAllCompetencyScores(assessmentID)
-		avgProficiency, totalResponses := s.getAssessmentProficiencyStats(assessmentID)
+		stageStats := s.getStageProficiencyStats(assessmentID)
 
 		revSvc := NewRevenueProjectionService()
-		revenueProjection := revSvc.ComputeRevenueProjection(stageData.StageNumber, allCompScores, avgProficiency, totalResponses)
+		revenueProjection := revSvc.ComputeRevenueProjection(stageData.StageNumber, allCompScores, stageStats)
 
 		revenueProjection -= assessment.AccumulatedExpenses
 		if revenueProjection < 0 {
@@ -462,18 +479,20 @@ func (s *AssessmentService) computeAllCompetencyScores(assessmentID string) map[
 	return final
 }
 
-func (s *AssessmentService) getAssessmentProficiencyStats(assessmentID string) (float64, int) {
-	var stats struct {
-		Avg   float64
-		Count int
-	}
-	db.DB.Model(&models.Response{}).Where("assessmentId = ? AND proficiencyScore > 0", assessmentID).
-		Select("AVG(proficiencyScore) as avg, COUNT(*) as count").Scan(&stats)
+func (s *AssessmentService) getStageProficiencyStats(assessmentID string) map[int]models.StageProficiencyStat {
+	var results []models.StageProficiencyStat
+	db.DB.Table("responses r").
+		Select("s.stageNumber as stage_number, AVG(r.proficiencyScore) as avg, COUNT(r.id) as count").
+		Joins("join stages s on r.stageId = s.id").
+		Where("r.assessmentId = ? AND r.proficiencyScore > 0 AND s.stageNumber IS NOT NULL", assessmentID).
+		Group("s.stageNumber").
+		Scan(&results)
 
-	if stats.Count == 0 {
-		return 2.0, 0
+	statsMap := make(map[int]models.StageProficiencyStat)
+	for _, r := range results {
+		statsMap[r.StageNumber] = r
 	}
-	return stats.Avg, stats.Count
+	return statsMap
 }
 
 // buildPhaseScenario creates a unified leader challenge for the phase transition.
