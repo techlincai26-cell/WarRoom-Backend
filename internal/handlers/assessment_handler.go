@@ -747,3 +747,62 @@ func (h *AssessmentHandler) RespondToInvestorAudio(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, response)
 }
+
+func (h *AssessmentHandler) GenerateInvestorFollowupAudio(c echo.Context) error {
+	assessmentID := c.Param("id")
+	investorID := c.FormValue("investorId")
+	if investorID == "" {
+		return c.JSON(400, map[string]string{"error": "investorId required"})
+	}
+
+	file, err := c.FormFile("audio")
+	if err != nil {
+		return c.JSON(400, map[string]string{"error": "audio required"})
+	}
+
+	src, _ := file.Open()
+	defer src.Close()
+	audioBytes, _ := io.ReadAll(src)
+	audioBase64 := base64.StdEncoding.EncodeToString(audioBytes)
+
+	mimeType := file.Header.Get("Content-Type")
+	if mimeType == "" {
+		mimeType = "audio/webm"
+	}
+
+	data, err := h.Service.GenerateInvestorFollowupAudio(assessmentID, investorID, audioBase64, mimeType)
+	if err != nil {
+		return c.JSON(500, map[string]string{"error": err.Error()})
+	}
+
+	return c.JSON(200, data)
+}
+
+func (h *AssessmentHandler) RespondToInvestorFinalAudio(c echo.Context) error {
+	assessmentID := c.Param("id")
+	investorID := c.FormValue("investorId")
+	initialTrans := c.FormValue("initialTranscription")
+	followupQ := c.FormValue("followupQuestion")
+
+	if investorID == "" || initialTrans == "" || followupQ == "" {
+		return c.JSON(400, map[string]string{"error": "missing fields"})
+	}
+
+	file, _ := c.FormFile("audio")
+	src, _ := file.Open()
+	defer src.Close()
+	audioBytes, _ := io.ReadAll(src)
+	audioBase64 := base64.StdEncoding.EncodeToString(audioBytes)
+	mimeType := file.Header.Get("Content-Type")
+	if mimeType == "" {
+		mimeType = "audio/webm"
+	}
+
+	scorecard, analysisData, err := h.Service.RespondToInvestorFinalAudio(assessmentID, investorID, initialTrans, followupQ, audioBase64, mimeType)
+	if err != nil {
+		return c.JSON(500, map[string]string{"error": err.Error()})
+	}
+
+	analysisData["scorecard"] = scorecard
+	return c.JSON(200, analysisData)
+}

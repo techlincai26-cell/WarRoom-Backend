@@ -136,6 +136,8 @@ func main() {
 	protected.POST("/assessments/:id/warroom/reject-offer", assessmentHandler.RejectOffer)
 	protected.POST("/assessments/:id/warroom/pitch-audio", assessmentHandler.SubmitPitchAudio)
 	protected.POST("/assessments/:id/warroom/respond-audio", assessmentHandler.RespondToInvestorAudio)
+	protected.POST("/assessments/:id/warroom/investor-followup-audio", assessmentHandler.GenerateInvestorFollowupAudio)
+	protected.POST("/assessments/:id/warroom/respond-final-audio", assessmentHandler.RespondToInvestorFinalAudio)
 
 	// Report
 	protected.GET("/assessments/:id/report", assessmentHandler.GetReport)

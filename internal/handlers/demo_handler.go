@@ -56,10 +56,10 @@ type GeneratePitchQnARequest struct {
 }
 
 type GenerateNegotiationRequest struct {
-	Introduction     string `json:"introduction"`
-	PitchResponse    string `json:"pitchResponse"`
-	RoundNumber      int    `json:"roundNumber"`
-	PreviousContext  string `json:"previousContext"`
+	Introduction    string `json:"introduction"`
+	PitchResponse   string `json:"pitchResponse"`
+	RoundNumber     int    `json:"roundNumber"`
+	PreviousContext string `json:"previousContext"`
 }
 
 type GenerateCompetencyReportRequest struct {

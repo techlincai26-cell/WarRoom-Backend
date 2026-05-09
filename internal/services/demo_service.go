@@ -657,4 +657,3 @@ You MUST respond in valid JSON:
 
 	return &report, nil
 }
-

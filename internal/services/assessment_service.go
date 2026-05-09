@@ -2525,3 +2525,114 @@ func (s *AssessmentService) GetScorecards(assessmentID string) ([]models.Investo
 	}
 	return scorecards, nil
 }
+
+// ============================================
+// WAR ROOM - GENERATE INVESTOR FOLLOWUP
+// ============================================
+func (s *AssessmentService) GenerateInvestorFollowupAudio(assessmentID string, investorID string, audioBase64 string, mimeType string) (map[string]interface{}, error) {
+	investor, ok := s.DataManager.InvestorMap[investorID]
+	if !ok {
+		return nil, errors.New("invalid investor ID")
+	}
+
+	analysis, err := s.AIService.GenerateInvestorFollowupAudio(
+		audioBase64,
+		mimeType,
+		investor.Name,
+		investor.PrimaryLens,
+		investor.SignatureQuestion,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate followup: %w", err)
+	}
+
+	// Context for TTS of the followup question
+	ctx := context.Background()
+	audioBase64Res, ttsErr := s.TTSService.GenerateVoice(ctx, analysis.FollowupQuestion, investor.Gender)
+	if ttsErr != nil {
+		fmt.Printf("Warning: failed to generate TTS for followup: %v\n", ttsErr)
+	}
+
+	return map[string]interface{}{
+		"transcription":     analysis.Transcription,
+		"followup_question": analysis.FollowupQuestion,
+		"audioBase64":       audioBase64Res,
+	}, nil
+}
+
+// ============================================
+// WAR ROOM - RESPOND TO INVESTOR FINAL AUDIO
+// ============================================
+func (s *AssessmentService) RespondToInvestorFinalAudio(
+	assessmentID string,
+	investorID string,
+	initialTranscription string,
+	followupQuestion string,
+	audioBase64 string,
+	mimeType string,
+) (*models.InvestorScorecard, map[string]interface{}, error) {
+	var assessment models.Assessment
+	if err := db.DB.Where("id = ?", assessmentID).First(&assessment).Error; err != nil {
+		return nil, nil, errors.New("assessment not found")
+	}
+
+	investor, ok := s.DataManager.InvestorMap[investorID]
+	if !ok {
+		return nil, nil, errors.New("invalid investor ID")
+	}
+
+	analysis, err := s.AIService.AnalyzeInvestorFinalResponseAudio(
+		audioBase64,
+		mimeType,
+		investor.Name,
+		investor.PrimaryLens,
+		investor.BiasTraitName,
+		investor.SignatureQuestion,
+		initialTranscription,
+		followupQuestion,
+	)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to analyze investor final audio: %w", err)
+	}
+
+	hasRedFlag := len(analysis.RedFlags) > 0
+	redFlagJSON, _ := json.Marshal(analysis.RedFlags)
+	deal := CalculateDealDecision(analysis.PrimaryScore, analysis.BiasTraitScore, hasRedFlag, 100000.0, 10.0)
+	dealProposedJSON, _ := json.Marshal(deal)
+
+	// We'll store both queries and both transcriptions in the scorecard fields
+	combinedQuestion := "1. " + investor.SignatureQuestion + "\n2. " + followupQuestion
+	combinedResponse := "1. " + initialTranscription + "\n2. " + analysis.Transcription
+
+	scorecard := &models.InvestorScorecard{
+		ID:               uuid.New().String(),
+		AssessmentID:     assessmentID,
+		InvestorID:       investorID,
+		InvestorName:     investor.Name,
+		PrimaryScore:     &analysis.PrimaryScore,
+		BiasTraitScore:   &analysis.BiasTraitScore,
+		BiasTraitName:    investor.BiasTraitName,
+		RedFlag:          hasRedFlag,
+		RedFlagReasons:   redFlagJSON,
+		DealDecision:     deal.Decision,
+		DealProposed:     dealProposedJSON,
+		Question:         combinedQuestion,
+		ParticipantResp:  combinedResponse,
+		InvestorReaction: analysis.Reaction,
+	}
+
+	db.DB.Create(scorecard)
+
+	ctx := context.Background()
+	audioBase64Res, ttsErr := s.TTSService.GenerateVoice(ctx, analysis.Reaction, investor.Gender)
+	if ttsErr != nil {
+		fmt.Printf("Warning: failed to generate final TTS: %v\n", ttsErr)
+	}
+
+	analysisData := map[string]interface{}{
+		"transcription": analysis.Transcription,
+		"audioBase64":   audioBase64Res,
+	}
+
+	return scorecard, analysisData, nil
+}

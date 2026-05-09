@@ -55,7 +55,7 @@ func (s *TTSService) GenerateVoice(ctx context.Context, text string, gender stri
 	if strings.EqualFold(gender, "female") {
 		voiceName = "en-US-Journey-F" // Female
 	}
-	
+
 	log.Printf("[TTSService] Generating voice for gender: %s -> mapped to %s", gender, voiceName)
 
 	req := &texttospeechpb.SynthesizeSpeechRequest{

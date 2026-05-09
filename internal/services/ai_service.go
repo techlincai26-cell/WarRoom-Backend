@@ -589,6 +589,144 @@ type InvestorResponseAudioAnalysis struct {
 	Reaction       string   `json:"reaction"`
 }
 
+type InvestorFollowupAudioAnalysis struct {
+	Transcription    string `json:"transcription"`
+	FollowupQuestion string `json:"followup_question"`
+}
+
+func (ai *AIService) GenerateInvestorFollowupAudio(
+	audioBase64 string,
+	mimeType string,
+	investorName string,
+	investorLens string,
+	question string,
+) (*InvestorFollowupAudioAnalysis, error) {
+
+	systemPrompt := fmt.Sprintf(`You are %s, an investor on KK's War Room panel.
+Your primary lens: %s
+
+You asked the founder: "%s"
+
+Now listen to their spoken response. Your task is to:
+1. Transcribe their spoken response accurately
+2. Generate a sharp, probing follow-up question based on their response.
+
+CRITICAL RULE: NEVER mention internal simulation mechanics. Stay completely in character.
+
+Respond in valid JSON:
+{
+  "transcription": "<exact transcription of what was said>",
+  "followup_question": "<1-2 sentence followup question probing their answer>"
+}
+
+If the audio only contains silence or noise, set transcription to "[No speech detected]" and followup_question to "I couldn't hear that. Could you clarify your answer?"`,
+		investorName, investorLens, question)
+
+	userText := fmt.Sprintf("Listen to this founder's response to %s's initial question and ask a follow-up.", investorName)
+
+	resp, err := ai.CallWithAudio(systemPrompt, userText, audioBase64, mimeType)
+	if err != nil {
+		log.Printf("[AIService] GenerateInvestorFollowupAudio failed: %v", err)
+		return &InvestorFollowupAudioAnalysis{
+			Transcription:    "[Audio analysis failed]",
+			FollowupQuestion: "Could you expand on that?",
+		}, nil
+	}
+
+	var parsed InvestorFollowupAudioAnalysis
+
+	start := strings.Index(resp.Content, "{")
+	end := strings.LastIndex(resp.Content, "}")
+	if start >= 0 && end > start {
+		err = json.Unmarshal([]byte(resp.Content[start:end+1]), &parsed)
+	}
+	if err != nil {
+		log.Printf("[AIService] GenerateInvestorFollowupAudio JSON parse failed: %v", err)
+		return &InvestorFollowupAudioAnalysis{
+			Transcription:    "[Audio analysis failed: json]",
+			FollowupQuestion: "Could you expand on that?",
+		}, nil
+	}
+
+	return &parsed, nil
+}
+
+func (ai *AIService) AnalyzeInvestorFinalResponseAudio(
+	audioBase64 string,
+	mimeType string,
+	investorName string,
+	investorLens string,
+	biasTraitName string,
+	initialQuestion string,
+	initialTranscription string,
+	followupQuestion string,
+) (*InvestorResponseAudioAnalysis, error) {
+
+	systemPrompt := fmt.Sprintf(`You are %s, an investor on KK's War Room panel.
+Your primary lens: %s
+Your bias trait to evaluate: %s
+
+Conversation history:
+1. You asked: "%s"
+2. Founder answered: "%s"
+3. You followed up: "%s"
+
+Now listen to their spoken response to your follow-up. Your task is to:
+1. Transcribe their spoken response accurately
+2. Evaluate the ENTIRE interaction (both answers combined) as %s would
+
+RED FLAG triggers (each causes -1 penalty):
+- Blames others for failures
+- Avoids or deflects the question
+- Overuse of hype language without substance
+- Defensive or aggressive tone
+- Contradictions detected in their story
+
+CRITICAL RULE: NEVER mention internal simulation mechanics or phases.
+
+Respond in valid JSON:
+{
+  "transcription": "<exact transcription of their second answer>",
+  "primary_score": <1-5 how well they answered both questions overall>,
+  "bias_trait_score": <1-5 how well they demonstrate %s>,
+  "red_flags": ["<flag1>"] or [],
+  "reaction": "<2-3 sentence final in-character reaction as %s prior to decision>"
+}`,
+		investorName, investorLens, biasTraitName, initialQuestion, initialTranscription, followupQuestion, investorName, biasTraitName, investorName)
+
+	userText := fmt.Sprintf("Listen to this founder's response to %s's follow-up and evaluate the whole exchange.", investorName)
+
+	resp, err := ai.CallWithAudio(systemPrompt, userText, audioBase64, mimeType)
+	if err != nil {
+		log.Printf("[AIService] AnalyzeInvestorFinalResponseAudio failed: %v", err)
+		return &InvestorResponseAudioAnalysis{
+			Transcription:  "[Audio analysis failed]",
+			PrimaryScore:   3,
+			BiasTraitScore: 3,
+			RedFlags:       []string{},
+			Reaction:       "I'll have to consider what you've just told me.",
+		}, nil
+	}
+
+	var parsed InvestorResponseAudioAnalysis
+
+	start := strings.Index(resp.Content, "{")
+	end := strings.LastIndex(resp.Content, "}")
+	if start >= 0 && end > start {
+		err = json.Unmarshal([]byte(resp.Content[start:end+1]), &parsed)
+	}
+	if err != nil {
+		return &InvestorResponseAudioAnalysis{
+			Transcription:  "[Audio analysis failed: json]",
+			PrimaryScore:   3,
+			BiasTraitScore: 3,
+			RedFlags:       []string{},
+			Reaction:       "I'll have to consider what you've just told me.",
+		}, nil
+	}
+	return &parsed, nil
+}
+
 func (ai *AIService) AnalyzeInvestorResponseAudio(
 	audioBase64 string,
 	mimeType string,
