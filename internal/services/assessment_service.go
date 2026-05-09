@@ -82,6 +82,17 @@ func (s *AssessmentService) CreateAssessment(userID string, setupData json.RawMe
 	now := time.Now()
 
 	var mentorsJSON, leadersJSON, investorsJSON json.RawMessage
+
+	if len(req.SelectedMentors) == 0 {
+		req.SelectedMentors = []string{"p1", "p4"}
+	}
+	if len(req.SelectedLeaders) == 0 {
+		req.SelectedLeaders = []string{"p3", "p6"}
+	}
+	if len(req.SelectedInvestors) == 0 {
+		req.SelectedInvestors = []string{"p2", "p5"}
+	}
+
 	if len(req.SelectedMentors) > 0 {
 		mentorsJSON, _ = json.Marshal(req.SelectedMentors)
 	}
