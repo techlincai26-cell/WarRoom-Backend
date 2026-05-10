@@ -21,6 +21,16 @@ import (
 
 var DB *gorm.DB
 
+// EnsureAssessmentCompatibilitySchema repairs legacy assessment-flow tables so
+// older databases can still accept new assessment creates.
+func EnsureAssessmentCompatibilitySchema() error {
+	return DB.AutoMigrate(
+		&models.Assessment{},
+		&models.Stage{},
+		&models.CompetencyScore{},
+	)
+}
+
 func Connect(cfg *config.Config) {
 	var err error
 	dsn := cfg.DatabaseURL
@@ -82,6 +92,10 @@ func Connect(cfg *config.Config) {
 		log.Println("Connected to database successfully")
 		// Enable global debug mode
 		DB = DB.Debug()
+	}
+
+	if err := EnsureAssessmentCompatibilitySchema(); err != nil {
+		log.Fatalf("Critical: assessment compatibility migration failed: %v", err)
 	}
 
 	// Configure connection pool
