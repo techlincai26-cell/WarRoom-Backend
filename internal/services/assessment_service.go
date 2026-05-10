@@ -2352,10 +2352,16 @@ func (s *AssessmentService) RestartAssessment(assessmentID string) (*models.Asse
 	assessment.CurrentQuestionID = firstQ
 	assessment.SimulatedMonth = 0
 	assessment.Status = "IN_PROGRESS"
+	assessment.CompletedAt = nil
 	assessment.LastActiveAt = &now
 	assessment.RevenueProjection = 0
+	assessment.AccumulatedExpenses = 0
+	assessment.Capital = 0
+	assessment.CapitalSource = ""
 	assessment.WarRoomPitch = ""
 	assessment.BuyoutChosen = false
+	assessment.DealResult = nil
+	assessment.MentorLifelinesRemaining = 3
 
 	// Reset states
 	assessment.FinancialState = json.RawMessage(`{"capital": 0, "revenue": 0, "burnRate": 0, "runway": 0, "equity": 100, "debt": 0}`)
@@ -2363,8 +2369,6 @@ func (s *AssessmentService) RestartAssessment(assessmentID string) (*models.Asse
 	assessment.CustomerState = json.RawMessage(`{"count": 0, "retention": 0, "satisfaction": 0}`)
 	assessment.ProductState = json.RawMessage(`{"quality": 0, "features": 0, "mvpLaunched": false}`)
 	assessment.MarketState = json.RawMessage(`{"competition": "unknown", "positioning": "undefined"}`)
-	assessment.Capital = 0
-	assessment.CapitalSource = ""
 	assessment.BudgetAllocations = json.RawMessage(`{}`)
 	assessment.CurrentPhaseResponses = nil
 	assessment.PreviousResponses = nil
@@ -2483,6 +2487,8 @@ func (s *AssessmentService) HandleBuyout(assessmentID string, company string, am
 
 	now := time.Now()
 	assessment.BuyoutChosen = true
+	assessment.CurrentStage = "STAGE_4_WARROOM"
+	assessment.CurrentQuestionID = ""
 	assessment.Status = "COMPLETED"
 	assessment.CompletedAt = &now
 	assessment.LastActiveAt = &now
@@ -2513,6 +2519,8 @@ func (s *AssessmentService) HandleWalkout(assessmentID string) (*models.Assessme
 	}
 
 	now := time.Now()
+	assessment.CurrentStage = "STAGE_4_WARROOM"
+	assessment.CurrentQuestionID = ""
 	assessment.Status = "COMPLETED"
 	assessment.CompletedAt = &now
 	assessment.LastActiveAt = &now
