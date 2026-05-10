@@ -2353,7 +2353,9 @@ func (s *AssessmentService) RestartAssessment(assessmentID string) (*models.Asse
 	assessment.SimulatedMonth = 0
 	assessment.Status = "IN_PROGRESS"
 	assessment.LastActiveAt = &now
-	assessment.RevenueProjection = 0 // Reset revenue
+	assessment.RevenueProjection = 0
+	assessment.WarRoomPitch = ""
+	assessment.BuyoutChosen = false
 
 	// Reset states
 	assessment.FinancialState = json.RawMessage(`{"capital": 0, "revenue": 0, "burnRate": 0, "runway": 0, "equity": 100, "debt": 0}`)
@@ -2364,19 +2366,27 @@ func (s *AssessmentService) RestartAssessment(assessmentID string) (*models.Asse
 	assessment.Capital = 0
 	assessment.CapitalSource = ""
 	assessment.BudgetAllocations = json.RawMessage(`{}`)
+	assessment.CurrentPhaseResponses = nil
+	assessment.PreviousResponses = nil
 
 	if err := db.DB.Save(&assessment).Error; err != nil {
 		return nil, fmt.Errorf("failed to restart assessment: %w", err)
 	}
 
-	// Reset competency scores
+	// Purge all old response data (so previous attempt doesn't bleed through)
+	db.DB.Where("assessmentId = ?", assessmentID).Delete(&models.Response{})
+	db.DB.Where("assessmentId = ?", assessmentID).Delete(&models.Stage{})
+	db.DB.Where("assessmentId = ?", assessmentID).Delete(&models.InvestorScorecard{})
+	db.DB.Where("assessmentId = ?", assessmentID).Delete(&models.MentorInteraction{})
+
+	// Reset competency scores (keep rows but zero out values)
 	db.DB.Model(&models.CompetencyScore{}).Where("assessmentId = ?", assessmentID).Updates(map[string]interface{}{
 		"stageScores":     json.RawMessage(`{}`),
 		"weightedAverage": 0,
-		"category":        "P1",
+		"category":        "DEVELOPMENT_REQUIRED",
 	})
 
-	// Create a new stage record for the first stage
+	// Create a fresh stage record for the first stage
 	stageData := s.DataManager.GetStage(firstStage)
 	stageRecord := &models.Stage{
 		ID:           uuid.New().String(),
@@ -2387,7 +2397,7 @@ func (s *AssessmentService) RestartAssessment(assessmentID string) (*models.Asse
 	}
 	db.DB.Create(stageRecord)
 
-	log.Printf("[Assessment] Restarted: id=%s, count=%d", assessment.ID, assessment.RestartCount)
+	log.Printf("[Assessment] Restarted (clean): id=%s, count=%d", assessment.ID, assessment.RestartCount)
 	return &assessment, nil
 }
 
