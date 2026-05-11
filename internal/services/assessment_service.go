@@ -928,21 +928,6 @@ func (s *AssessmentService) BatchUpdateCompetencyScores(assessmentID string, cur
 		competencyMap[cs.CompetencyCode] = cs
 	}
 
-	// Pre-fetch all necessary response data using a lightweight SQL join to avoid memory-heavy operations
-	type ResponseRow struct {
-		StageName            string
-		QuestionID           string
-		ProficiencyScore     int
-		CompetenciesAssessed []byte
-		AIEvaluation         []byte
-	}
-	var rows []ResponseRow
-	db.DB.Table("responses").
-		Select("stages.stage_name as stage_name, responses.question_id as question_id, responses.proficiency_score as proficiency_score, responses.competencies_assessed as competencies_assessed, responses.ai_evaluation as ai_evaluation").
-		Joins("JOIN stages ON stages.id = responses.stage_id").
-		Where("responses.assessment_id = ?", assessmentID).
-		Scan(&rows)
-
 	for _, code := range competencies {
 		cs, exists := competencyMap[code]
 		if !exists {
@@ -968,40 +953,42 @@ func (s *AssessmentService) BatchUpdateCompetencyScores(assessmentID string, cur
 			stageCompScores[stage][code] = scores
 		}
 
+		// Fetch evidence items for this competency (from all stages)
+		var responses []models.Response
+		db.DB.Where("assessmentId = ?", assessmentID).Find(&responses)
+
 		evidenceMap := make(map[string]map[string][]EvidenceItem)
-		for _, row := range rows {
+		for _, resp := range responses {
 			var respComps []string
-			if err := json.Unmarshal(row.CompetenciesAssessed, &respComps); err != nil {
+			if err := json.Unmarshal(resp.CompetenciesAssessed, &respComps); err != nil {
 				continue
 			}
 
-			hasCode := false
+			// Find stage record to get the stage name
+			var stage models.Stage
+			db.DB.Where("id = ?", resp.StageID).First(&stage)
+
 			for _, c := range respComps {
-				if c == code {
-					hasCode = true
-					break
+				if c != code {
+					continue
 				}
+				if _, ok := evidenceMap[stage.StageName]; !ok {
+					evidenceMap[stage.StageName] = make(map[string][]EvidenceItem)
+				}
+				evidenceMap[stage.StageName][c] = append(evidenceMap[stage.StageName][c], EvidenceItem{
+					Stage:       stage.StageName,
+					QuestionID:  resp.QuestionID,
+					Proficiency: *resp.ProficiencyScore,
+					AIEval:      resp.AIEvaluation,
+				})
 			}
-
-			if !hasCode {
-				continue
-			}
-
-			if _, ok := evidenceMap[row.StageName]; !ok {
-				evidenceMap[row.StageName] = make(map[string][]EvidenceItem)
-			}
-			evidenceMap[row.StageName][code] = append(evidenceMap[row.StageName][code], EvidenceItem{
-				Stage:       row.StageName,
-				QuestionID:  row.QuestionID,
-				Proficiency: row.ProficiencyScore,
-				AIEval:      row.AIEvaluation,
-			})
 		}
 
 		results := s.ScoringEngine.CalculateCompetencyScores(stageCompScores, evidenceMap)
 		if result, ok := results[code]; ok {
 			cs.WeightedAverage = result.WeightedAverage
 			cs.Category = result.Category
+			// Save strengths and weaknesses to DB
 			strJSON, _ := json.Marshal(result.Strengths)
 			weakJSON, _ := json.Marshal(result.Weaknesses)
 			evidJSON, _ := json.Marshal(result.Evidence)
