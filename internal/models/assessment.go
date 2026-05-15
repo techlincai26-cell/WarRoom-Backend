@@ -63,6 +63,15 @@ type Assessment struct {
 	RestartCount      int             `gorm:"column:restart_count;not null;default:0" json:"restartCount"`
 	PreviousResponses json.RawMessage `gorm:"column:previous_responses;type:json" json:"previousResponses"`
 
+	// LatestResponses tracks the most recent answer per question across the entire
+	// assessment lifecycle, keyed by questionId. Unlike PreviousResponses (which is
+	// chronological + truncated for AI context), this is a cumulative map used by:
+	//   - dynamic scenario generation (so scenarios reflect the user's current choices)
+	//   - phase-agnostic report generation (buyout / mid-phase exits)
+	//   - restart-with-continue mode (preserves the latest plan across a soft restart)
+	// Shape: { "Q_0_1": { "response": <raw>, "proficiency": int, "stageId": string, "answeredAt": RFC3339 }, ... }
+	LatestResponses json.RawMessage `gorm:"column:latest_responses;type:json" json:"latestResponses"`
+
 	// War Room
 	WarRoomPitch string          `gorm:"column:warRoomPitch;type:text" json:"warRoomPitch"`
 	DealResult   json.RawMessage `gorm:"column:dealResult;type:json" json:"dealResult"`

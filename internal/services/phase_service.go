@@ -262,14 +262,23 @@ func (s *AssessmentService) SubmitPhase(assessmentID string, stageID string, res
 		db.DB.Create(&dbResponses)
 	}
 
+	// Track the latest answer per question. This is the cumulative source of truth
+	// that the report endpoint and dynamic-scenario generator consume — keeping it
+	// in sync here means a buyout / mid-phase report reflects the user's real picks.
+	for qID, out := range responseResults {
+		upsertLatestResponse(assessmentID, stageID, qID, responses[qID], out.ProficiencyScore)
+	}
+
 	// Collect competency list for background processing
 	var compList []string
 	for c := range allAssessedCompetencies {
 		compList = append(compList, c)
 	}
 
-	// 8. Update Stage & Assessment state immediately for the fast path
-	stageRecord.QuestionsAns = len(responseResults)
+	// 8. Update Stage & Assessment state immediately for the fast path.
+	// Use += so re-submitting the same phase (e.g. after a continue-mode restart)
+	// accumulates rather than silently overwriting the prior count.
+	stageRecord.QuestionsAns += len(responseResults)
 	stageRecord.CompletedAt = &now
 	db.DB.Save(&stageRecord)
 

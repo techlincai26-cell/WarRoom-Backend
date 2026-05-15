@@ -6,6 +6,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
+	"war-room-backend/internal/models"
 	"war-room-backend/internal/services"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -377,11 +379,22 @@ func (h *AssessmentHandler) CounterNegotiateAudio(c echo.Context) error {
 // Report
 // ============================================
 
-// GET /assessments/:id/report - Generate or get evaluation report
+// GET /assessments/:id/report - Generate or get evaluation report.
+// Accepts an optional `?regenerate=true` query param that drops any cached report
+// and rebuilds from current assessment state. Use this after the user changes
+// answers post-buyout, or any time the cached report becomes stale.
 func (h *AssessmentHandler) GetReport(c echo.Context) error {
 	assessmentID := c.Param("id")
 
-	report, err := h.Service.GenerateReport(assessmentID)
+	regenerate := strings.EqualFold(c.QueryParam("regenerate"), "true")
+
+	var report *models.Report
+	var err error
+	if regenerate {
+		report, err = h.Service.RegenerateReport(assessmentID)
+	} else {
+		report, err = h.Service.GenerateReport(assessmentID)
+	}
 	if err != nil {
 		if err.Error() == "assessment not found" {
 			return c.JSON(http.StatusNotFound, map[string]string{"error": err.Error()})
@@ -578,10 +591,28 @@ func (h *AssessmentHandler) SubmitDynamicScenario(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+// RestartRequest is the optional body for POST /assessments/:id/restart.
+// Both fields are optional — an empty body preserves the legacy behaviour
+// (mode=month_zero, full wipe). Pass mode="continue" with an optional
+// targetStage to revisit a specific phase with prior answers preserved.
+type RestartRequest struct {
+	Mode        string `json:"mode"`
+	TargetStage string `json:"targetStage"`
+}
+
 // POST /assessments/:id/restart
 func (h *AssessmentHandler) Restart(c echo.Context) error {
 	assessmentID := c.Param("id")
-	result, err := h.Service.RestartAssessment(assessmentID)
+
+	req := RestartRequest{}
+	// Body is optional — ignore decode errors so existing callers that POST with
+	// no body continue to work (they get the default month_zero restart).
+	_ = c.Bind(&req)
+
+	result, err := h.Service.RestartAssessment(assessmentID, services.RestartOpts{
+		Mode:        req.Mode,
+		TargetStage: req.TargetStage,
+	})
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
