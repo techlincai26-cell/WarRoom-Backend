@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"war-room-backend/internal/db"
 	"war-room-backend/internal/models"
 	"war-room-backend/internal/services"
 
@@ -44,10 +45,19 @@ type PhaseResponseItem struct {
 	Allocations      map[string]float64 `json:"allocations,omitempty"`
 }
 
+// PhaseEngagementMetrics is the client-reported rapid-click telemetry for a phase.
+// The server treats these as untrusted hints and recomputes spamPercent itself.
+type PhaseEngagementMetrics struct {
+	BurstEvents     int `json:"burstEvents"`
+	FloorEvents     int `json:"floorEvents"`
+	TotalSelections int `json:"totalSelections"`
+}
+
 // PhaseSubmitRequest collects all answers for a full phase.
 type PhaseSubmitRequest struct {
-	StageID   string              `json:"stageId"`
-	Responses []PhaseResponseItem `json:"responses"` // array of response items from frontend
+	StageID    string                  `json:"stageId"`
+	Responses  []PhaseResponseItem     `json:"responses"` // array of response items from frontend
+	Engagement *PhaseEngagementMetrics `json:"engagement,omitempty"`
 }
 
 // CharactersRequest for setting chosen mentors/leaders/investors.
@@ -402,7 +412,21 @@ func (h *AssessmentHandler) GetReport(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate report"})
 	}
 
-	return c.JSON(http.StatusOK, report)
+	// Stitch in per-phase engagement so the admin/user report can show it.
+	resp := map[string]interface{}{}
+	raw, _ := json.Marshal(report)
+	_ = json.Unmarshal(raw, &resp)
+	var assessment models.Assessment
+	if db.DB.Select("phase_engagement").Where("id = ?", assessmentID).First(&assessment).Error == nil {
+		if len(assessment.PhaseEngagement) > 0 {
+			var engagement map[string]interface{}
+			if err := json.Unmarshal(assessment.PhaseEngagement, &engagement); err == nil {
+				resp["phaseEngagement"] = engagement
+			}
+		}
+	}
+
+	return c.JSON(http.StatusOK, resp)
 }
 
 // ============================================
@@ -425,7 +449,16 @@ func (h *AssessmentHandler) SubmitPhase(c echo.Context) error {
 		responsesMap[r.QuestionID] = raw
 	}
 
-	result, err := h.Service.SubmitPhase(assessmentID, req.StageID, responsesMap)
+	var engagement *services.PhaseEngagementInput
+	if req.Engagement != nil {
+		engagement = &services.PhaseEngagementInput{
+			BurstEvents:     req.Engagement.BurstEvents,
+			FloorEvents:     req.Engagement.FloorEvents,
+			TotalSelections: req.Engagement.TotalSelections,
+		}
+	}
+
+	result, err := h.Service.SubmitPhaseWithEngagement(assessmentID, req.StageID, responsesMap, engagement)
 	if err != nil {
 		switch err.Error() {
 		case "assessment not found":

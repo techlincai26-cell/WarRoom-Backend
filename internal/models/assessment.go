@@ -48,6 +48,10 @@ type Assessment struct {
 	RevenueProjection   int64 `gorm:"column:revenue_projection;not null;default:0" json:"revenueProjection"`
 	AccumulatedExpenses int64 `gorm:"column:accumulated_expenses;not null;default:0" json:"accumulatedExpenses"`
 
+	// Per-phase engagement metrics (rapid-click / spam guard).
+	// Shape: { "STAGE_X": { spamPercent: 47.3, burstEvents: 4, floorEvents: 2, totalSelections: 12 } }
+	PhaseEngagement json.RawMessage `gorm:"column:phase_engagement;type:json" json:"phaseEngagement"`
+
 	// In-phase buffer: answers collected client-side are posted here before AI eval begins.
 	// Cleared after each phase-submit completes.
 	CurrentPhaseResponses json.RawMessage `gorm:"column:current_phase_responses;type:json" json:"currentPhaseResponses"`

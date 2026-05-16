@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/json"
 	"strings"
 	"sync"
 	"time"
@@ -164,16 +165,17 @@ func (s *BatchService) DeleteBatch(id string) error {
 
 // BatchParticipantDTO represents a participant in a batch with their assessment status.
 type BatchParticipantDTO struct {
-	UserID            string     `json:"userId"`
-	UserName          string     `json:"userName"`
-	Email             string     `json:"email"`
-	JoinedAt          time.Time  `json:"joinedAt"`
-	AssessmentID      *string    `json:"assessmentId"`
-	Status            *string    `json:"status"`
-	CurrentStage      *string    `json:"currentStage"`
-	RevenueProjection *int64     `json:"revenueProjection"`
-	StartedAt         *time.Time `json:"startedAt"`
-	CompletedAt       *time.Time `json:"completedAt"`
+	UserID            string          `json:"userId"`
+	UserName          string          `json:"userName"`
+	Email             string          `json:"email"`
+	JoinedAt          time.Time       `json:"joinedAt"`
+	AssessmentID      *string         `json:"assessmentId"`
+	Status            *string         `json:"status"`
+	CurrentStage      *string         `json:"currentStage"`
+	RevenueProjection *int64          `json:"revenueProjection"`
+	StartedAt         *time.Time      `json:"startedAt"`
+	CompletedAt       *time.Time      `json:"completedAt"`
+	PhaseEngagement   json.RawMessage `json:"phaseEngagement,omitempty"`
 }
 
 // GetBatchParticipants returns all participant users in a batch along with their latest assessment info.
@@ -224,6 +226,9 @@ func (s *BatchService) GetBatchParticipants(batchCode string) ([]BatchParticipan
 			dto.RevenueProjection = &a.RevenueProjection
 			dto.StartedAt = a.StartedAt
 			dto.CompletedAt = a.CompletedAt
+			if len(a.PhaseEngagement) > 0 {
+				dto.PhaseEngagement = a.PhaseEngagement
+			}
 		}
 		result = append(result, dto)
 	}

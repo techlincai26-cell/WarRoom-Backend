@@ -51,6 +51,111 @@ type PhaseScenarioOut struct {
 	IsCheckpoint  bool   `json:"isCheckpoint,omitempty"`
 }
 
+// PhaseEngagementInput is the per-phase rapid-click telemetry from the frontend.
+type PhaseEngagementInput struct {
+	BurstEvents     int
+	FloorEvents     int
+	TotalSelections int
+}
+
+// PhaseEngagementRecord is what we persist into Assessment.PhaseEngagement, keyed by stageID.
+type PhaseEngagementRecord struct {
+	SpamPercent     float64 `json:"spamPercent"`
+	BurstEvents     int     `json:"burstEvents"`
+	FloorEvents     int     `json:"floorEvents"`
+	TotalSelections int     `json:"totalSelections"`
+}
+
+const engagementWarningThreshold = 40.0
+const engagementMaxPercent = 80.0
+
+// computeSpamPercent collapses the two signals into a single 0-100 percentage.
+// Capped at 100. Server is the source of truth — clients send raw counts.
+func computeSpamPercent(in PhaseEngagementInput) float64 {
+	if in.TotalSelections <= 0 {
+		return 0
+	}
+	suspicious := in.BurstEvents + in.FloorEvents
+	pct := (float64(suspicious) / float64(in.TotalSelections)) * 100.0
+	if pct < 0 {
+		return 0
+	}
+	if pct > 100 {
+		return 100
+	}
+	return pct
+}
+
+// applyEngagementRevenuePenalty returns the revenue after applying the
+// involvement-lacking penalty. Linear, capped at 40% deduction.
+//   spamPercent 40 → -20%
+//   spamPercent 60 → -30%
+//   spamPercent 80+ → -40%
+func applyEngagementRevenuePenalty(revenue int64, spamPercent float64) int64 {
+	if spamPercent < engagementWarningThreshold {
+		return revenue
+	}
+	clamped := spamPercent
+	if clamped > engagementMaxPercent {
+		clamped = engagementMaxPercent
+	}
+	factor := 1.0 - (clamped / 200.0)
+	return int64(float64(revenue) * factor)
+}
+
+// SubmitPhaseWithEngagement wraps SubmitPhase, recording per-phase engagement
+// metrics on the assessment and applying a revenue penalty if the spam
+// percentage exceeds the warning threshold. The wrapper is a no-op when
+// engagement is nil — older clients keep working.
+func (s *AssessmentService) SubmitPhaseWithEngagement(
+	assessmentID, stageID string,
+	responses map[string]json.RawMessage,
+	engagement *PhaseEngagementInput,
+) (*PhaseSubmitResult, error) {
+	result, err := s.SubmitPhase(assessmentID, stageID, responses)
+	if err != nil || engagement == nil {
+		return result, err
+	}
+
+	spamPercent := computeSpamPercent(*engagement)
+
+	var assessment models.Assessment
+	if err := db.DB.Where("id = ?", assessmentID).First(&assessment).Error; err != nil {
+		log.Printf("[phase_service] engagement persist: assessment lookup failed: %v", err)
+		return result, nil
+	}
+
+	// Merge into existing PhaseEngagement map
+	store := map[string]PhaseEngagementRecord{}
+	if len(assessment.PhaseEngagement) > 0 {
+		_ = json.Unmarshal(assessment.PhaseEngagement, &store)
+	}
+	store[stageID] = PhaseEngagementRecord{
+		SpamPercent:     spamPercent,
+		BurstEvents:     engagement.BurstEvents,
+		FloorEvents:     engagement.FloorEvents,
+		TotalSelections: engagement.TotalSelections,
+	}
+	if raw, mErr := json.Marshal(store); mErr == nil {
+		assessment.PhaseEngagement = raw
+	}
+
+	// Apply revenue penalty
+	penalized := applyEngagementRevenuePenalty(assessment.RevenueProjection, spamPercent)
+	if penalized != assessment.RevenueProjection {
+		log.Printf("[phase_service] engagement penalty: stage=%s spam=%.1f%% revenue %d -> %d",
+			stageID, spamPercent, assessment.RevenueProjection, penalized)
+		assessment.RevenueProjection = penalized
+		result.RevenueProjection = penalized
+	}
+
+	if saveErr := db.DB.Save(&assessment).Error; saveErr != nil {
+		log.Printf("[phase_service] engagement persist save failed: %v", saveErr)
+	}
+
+	return result, nil
+}
+
 // SubmitPhase collects all answers for a phase at once.
 // MCQ answers are scored from pre-defined option proficiency (no AI).
 // Open-text answers are sent to AI in a single batched call.
