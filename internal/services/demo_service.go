@@ -304,14 +304,35 @@ You MUST respond in valid JSON:
 	}
 
 	var negotiation DemoFollowupScenario
-	resp, err := s.AI.Call(messages)
-	if err != nil {
-		return nil, err
+	var lastErr error
+
+	for attempt := 1; attempt <= 3; attempt++ {
+		resp, err := s.AI.Call(messages)
+		if err != nil {
+			lastErr = err
+			log.Printf("[DemoService] GenerateNegotiationScenario attempt %d failed: %v", attempt, err)
+			continue
+		}
+
+		cleaned := stripMarkdownCodeBlocks(resp.Content)
+		start := strings.Index(cleaned, "{")
+		end := strings.LastIndex(cleaned, "}")
+		if start >= 0 && end > start {
+			if err := json.Unmarshal([]byte(cleaned[start:end+1]), &negotiation); err != nil {
+				lastErr = fmt.Errorf("parse error: %w", err)
+				log.Printf("[DemoService] GenerateNegotiationScenario parse attempt %d: %v", attempt, err)
+				continue
+			}
+			if negotiation.Question != "" {
+				break
+			}
+		}
+		lastErr = fmt.Errorf("no usable JSON in response")
+		log.Printf("[DemoService] GenerateNegotiationScenario attempt %d: %v", attempt, lastErr)
 	}
 
-	content := stripMarkdownCodeBlocks(resp.Content)
-	if err := json.Unmarshal([]byte(content), &negotiation); err != nil {
-		return nil, err
+	if negotiation.Question == "" {
+		return nil, fmt.Errorf("failed to generate negotiation scenario after 3 attempts: %w", lastErr)
 	}
 
 	return &negotiation, nil

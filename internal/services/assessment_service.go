@@ -2362,22 +2362,39 @@ Respond in valid JSON:
 }`, investor.Name, investor.Bio, round)
 
 	userText := "Listen to the founder's counter offer and respond."
-	aiResp, err := s.AIService.CallWithAudio(systemPrompt, userText, audioBase64, "audio/webm")
-	if err != nil {
-		return nil, fmt.Errorf("AI analysis failed: %w", err)
-	}
 
 	var result NegotiationAudioResponse
-	content := aiResp.Content
-	start := strings.Index(content, "{")
-	end := strings.LastIndex(content, "}")
-	if start >= 0 && end > start {
-		if err := json.Unmarshal([]byte(content[start:end+1]), &result); err != nil {
-			log.Printf("[AssessmentService] CounterNegotiateAudio parse error: %v", err)
-			return nil, errors.New("failed to parse AI response")
+	var lastErr error
+	parsed := false
+
+	for attempt := 1; attempt <= 3; attempt++ {
+		aiResp, err := s.AIService.CallWithAudio(systemPrompt, userText, audioBase64, "audio/webm")
+		if err != nil {
+			lastErr = fmt.Errorf("AI analysis failed: %w", err)
+			log.Printf("[AssessmentService] CounterNegotiateAudio attempt %d AI call failed: %v", attempt, err)
+			continue
 		}
-	} else {
-		return nil, errors.New("invalid AI response format")
+
+		content := aiResp.Content
+		start := strings.Index(content, "{")
+		end := strings.LastIndex(content, "}")
+		if start >= 0 && end > start {
+			if err := json.Unmarshal([]byte(content[start:end+1]), &result); err != nil {
+				lastErr = fmt.Errorf("parse error: %w", err)
+				log.Printf("[AssessmentService] CounterNegotiateAudio attempt %d parse error: %v", attempt, err)
+				continue
+			}
+			if result.Message != "" {
+				parsed = true
+				break
+			}
+		}
+		lastErr = errors.New("invalid AI response format")
+		log.Printf("[AssessmentService] CounterNegotiateAudio attempt %d: %v", attempt, lastErr)
+	}
+
+	if !parsed {
+		return nil, fmt.Errorf("failed to parse negotiation response after 3 attempts: %w", lastErr)
 	}
 
 	// Persist state
