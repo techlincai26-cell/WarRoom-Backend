@@ -1926,6 +1926,8 @@ func (s *AssessmentService) generateReportInternal(assessmentID string, regenera
 		Proficiency        *int            `json:"proficiency"`
 		AIFeedback         json.RawMessage `json:"aiFeedback"`
 		SelectedOptionText string          `json:"selectedOptionText,omitempty"`
+		IdealOptionText    string          `json:"idealOptionText,omitempty"`
+		IdealRationale     string          `json:"idealRationale,omitempty"`
 	}
 
 	userResponseEntries := make([]UserResponseEntry, 0, len(allResponses))
@@ -1968,7 +1970,26 @@ func (s *AssessmentService) generateReportInternal(assessmentID string, regenera
 			profStr = fmt.Sprintf(" (P%d)", *r.ProficiencyScore)
 		}
 		responseSummaryLines = append(responseSummaryLines, fmt.Sprintf("[%s] %s → %s%s", stageName, questionText, respText, profStr))
-		// old entry removed
+
+		// Derive the "ideal" option for option-based questions: highest proficiency wins,
+		// ties broken by first occurrence (matches authoring order).
+		idealOptionText := ""
+		idealRationale := ""
+		if q != nil && len(q.Options) > 0 && (r.QuestionType == "multiple_choice" || r.QuestionType == "scenario") {
+			bestProf := -1
+			for _, opt := range q.Options {
+				if opt.Proficiency > bestProf {
+					bestProf = opt.Proficiency
+					idealOptionText = opt.Text
+					if opt.Feedback != "" {
+						idealRationale = opt.Feedback
+					} else {
+						idealRationale = opt.Signal
+					}
+				}
+			}
+		}
+
 		entry := UserResponseEntry{
 			StageName:          stageName,
 			QuestionID:         r.QuestionID,
@@ -1978,6 +1999,8 @@ func (s *AssessmentService) generateReportInternal(assessmentID string, regenera
 			Proficiency:        r.ProficiencyScore,
 			AIFeedback:         r.AIEvaluation,
 			SelectedOptionText: respText,
+			IdealOptionText:    idealOptionText,
+			IdealRationale:     idealRationale,
 		}
 		userResponseEntries = append(userResponseEntries, entry)
 	}
