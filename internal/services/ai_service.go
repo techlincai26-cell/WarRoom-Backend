@@ -1241,7 +1241,7 @@ Generate a HIGH-LEVEL STRATEGIC EVALUATION report in the following format. Use c
 - A closing statement on whether this founder is "Investor Ready", "Growth Ready", or "Needs Co-founder Support".
 
 RULES:
-- Be hyper-specific. Reference actual decisions, investor reactions (e.g. "Kevin O'Leary walked out because..."), and final metrics.
+- Be hyper-specific. Reference actual decisions, investor reactions (e.g. "The Master of Coin walked out because..."), and final metrics.
 - Use the second person ("You").
 - Use professional yet encouraging "Venture Partner" tone.
 - Total length: 700-1000 words.

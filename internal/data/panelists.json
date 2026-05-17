@@ -1,7 +1,7 @@
 [
   {
     "id": "p1",
-    "name": "Sarah Wisdom",
+    "name": "The Empathetic Coach",
     "role": "Startup Coach",
     "category": "mentor",
     "primaryLens": "Founder Psychology",
@@ -21,13 +21,13 @@
     ],
     "guidanceStyle": "Coaching",
     "tone": "warm",
-    "bio": "Sarah has coached over 500 founders through the highs and lows of startup life.",
+    "bio": "Has coached hundreds of founders through the highs and lows of startup life.",
     "remarks": {},
     "gender": "female"
   },
   {
     "id": "p2",
-    "name": "Marcus Money",
+    "name": "The Capital Skeptic",
     "role": "Venture Capitalist",
     "category": "investor",
     "primaryLens": "ROI & Scalability",
@@ -47,13 +47,13 @@
     ],
     "guidanceStyle": "Direct",
     "tone": "skeptical",
-    "bio": "Marcus manages a $500M fund and only invests in potential unicorns.",
+    "bio": "Manages a half-billion-dollar fund and only invests in potential unicorns.",
     "remarks": {},
     "gender": "male"
   },
   {
     "id": "p3",
-    "name": "Elena Executive",
+    "name": "The Operating Executive",
     "role": "Tech CEO",
     "category": "leader",
     "primaryLens": "Execution & Culture",
@@ -73,13 +73,13 @@
     ],
     "guidanceStyle": "Mentoring",
     "tone": "analytical",
-    "bio": "Elena scaled her SaaS company to IPO and focuses on building strong organizations.",
+    "bio": "Scaled a SaaS company to IPO. Focuses on building strong organizations.",
     "remarks": {},
     "gender": "female"
   },
   {
     "id": "p4",
-    "name": "David Design",
+    "name": "The Design Authority",
     "role": "Product Leader",
     "category": "mentor",
     "primaryLens": "User Experience",
@@ -99,13 +99,13 @@
     ],
     "guidanceStyle": "Teaching",
     "tone": "optimistic",
-    "bio": "David believes design is the competitive advantage of the 21st century.",
+    "bio": "Believes design is the competitive advantage of the 21st century.",
     "remarks": {},
     "gender": "male"
   },
   {
     "id": "p5",
-    "name": "Ivan Iron",
+    "name": "The Margin Hawk",
     "role": "Angel Investor",
     "category": "investor",
     "primaryLens": "Unit Economics",
@@ -125,13 +125,13 @@
     ],
     "guidanceStyle": "Critical",
     "tone": "blunt",
-    "bio": "Ivan made his fortune in logistics and hates waste.",
+    "bio": "Made a fortune in logistics and hates waste.",
     "remarks": {},
     "gender": "male"
   },
   {
     "id": "p6",
-    "name": "Olivia Ops",
+    "name": "The Process Architect",
     "role": "COO",
     "category": "leader",
     "primaryLens": "Systems & Process",
@@ -151,7 +151,7 @@
     ],
     "guidanceStyle": "Structured",
     "tone": "calm",
-    "bio": "Olivia turns chaotic startups into well-oiled machines.",
+    "bio": "Turns chaotic startups into well-oiled machines.",
     "remarks": {},
     "gender": "female"
   }
